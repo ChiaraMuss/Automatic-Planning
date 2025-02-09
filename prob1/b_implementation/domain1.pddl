@@ -86,7 +86,7 @@
     ;; Deliver the box to the medical unit
     (:action deliver_box
         :parameters (?r - delivery_robot ?b - box ?m - medical_unit ?l - location )
-        :precondition (and (robot_carries ?r ?b) (robot_at ?r ?l) (med_unit_at ?m ?l)) ; Ensure content is in the box
+        :precondition (and (robot_carries ?r ?b) (robot_at ?r ?l) (med_unit_at ?m ?l))
         :effect (and (not(robot_carries ?r ?b)) (empty_handed ?r) (box_at_med_unit ?b ?m) ) ; After delivery, medical unit has the box
     )
 
