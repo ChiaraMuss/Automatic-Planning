@@ -5,16 +5,16 @@
     central_warehouse entrance location1 location2 location3 - location
     scalpel tongue_depressor aspirin - content
     box1 box2 box3 box4 box5 - box
-    delivery_robot - robot
-    accompany_robot - robot
+    delivery_robot1 - delivery_robot
+    accompany_robot1 - accompany_robot
     patient1 patient2 - patient
     medical_unit1 medical_unit2 medical_unit3 - medical_unit
   )
 
   (:init
     ;; Posizione iniziale dei robot
-    (robot_at delivery_robot central_warehouse)
-    (robot_at accompany_robot entrance)
+    (robot_at delivery_robot1 central_warehouse)
+    (robot_at accompany_robot1 entrance)
 
     ;; Posizione iniziale dei pazienti
     (patient_at patient1 entrance)
@@ -33,6 +33,12 @@
     (contains box3 aspirin)
     (contains box4 scalpel)
     (contains box5 aspirin)
+
+    ;; Definiamo i bisogni delle medical unit
+    (needs_supply medical_unit1 scalpel) ;; Medical unit 1 ha bisogno di scalpel
+    (needs_supply medical_unit1 aspirin) ;; Medical unit 1 ha bisogno di aspirin
+    ;; medical_unit2 non ha bisogno di alcuna fornitura, quindi non è definito qui
+    (needs_supply medical_unit3 aspirin) ;; Medical unit 3 ha bisogno di aspirin
 
     ;; Connessioni bidirezionali tra le location
     (connected central_warehouse location1)
@@ -66,12 +72,15 @@
 
   (:goal
     (and
-      (medical_supplied medical_unit1)
-      (medical_supplied medical_unit2)
-      (medical_supplied medical_unit3)
+      ;; Le medical unit devono ricevere solo la fornitura che necessitano
+      (medical_supplied medical_unit1 scalpel)
+      (medical_supplied medical_unit1 aspirin)
+      (medical_supplied medical_unit3 aspirin)
 
+      ;; I pazienti devono raggiungere le unità mediche
       (patient_at patient1 medical_unit1)
       (patient_at patient2 medical_unit2)
     )
   )
 )
+
