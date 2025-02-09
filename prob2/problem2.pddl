@@ -6,9 +6,9 @@
     entrance location1 location2 - location
     scalpel tongue_depressor aspirin - content
     box1 box2 box3 box4 box5 box6 box7 box8 box9 box10 - box
-    delivery_robot1 - delivery_robot
+    delivery_robot1 delivery_robot2 - delivery_robot
     accompany_robot1 - accompany_robot
-    carrier1 carrier2 carrier3 - carrier
+    carrier1 carrier2 carrier3 carrier4 - carrier
     rocco ciro - patient
     medical_unit1 medical_unit2 medical_unit3 - medical_unit
   )
@@ -16,6 +16,7 @@
   (:init
     ; Initial positions of robots and patients
     (robot_at delivery_robot1 central_warehouse)
+    (robot_at delivery_robot2 central_warehouse)
     (robot_at accompany_robot1 entrance)
     (patient_at rocco entrance)
     (patient_at ciro entrance)
@@ -39,16 +40,20 @@
     (carrier_at carrier1 central_warehouse)
     (carrier_at carrier2 central_warehouse)
     (carrier_at carrier3 central_warehouse)
+    (carrier_at carrier4 central_warehouse)
     (robot_has_carrier delivery_robot1 carrier1)
+    (robot_has_carrier delivery_robot2 carrier2)
     
     ; Carrier capacities
     (= (carrier_capacity carrier1) 3)
     (= (carrier_capacity carrier2) 2)
     (= (carrier_capacity carrier3) 4)
+    (= (carrier_capacity carrier4) 5)
 
     (= (carrier_used carrier1) 0)
     (= (carrier_used carrier2) 0)
     (= (carrier_used carrier3) 0)
+    (= (carrier_used carrier4) 0)
 
     ;; Inventory
     (= (med_unit_inventory_of medical_unit1 aspirin) 0 )
@@ -99,5 +104,4 @@
     )
   )
 )
-
 
