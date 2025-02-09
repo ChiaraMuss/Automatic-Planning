@@ -15,6 +15,8 @@
     ;; Posizione iniziale dei robot
     (robot_at delivery_robot1 central_warehouse)
     (robot_at accompany_robot1 entrance)
+    (free_to_accompany accompany_robot1)
+    (hands_free delivery_robot1)
 
     ;; Posizione iniziale dei pazienti
     (patient_at patient1 entrance)
@@ -65,9 +67,9 @@
     (connected location2 location3)
     (connected location3 location2)
 
-    (connected entrance medical_unit1)
-    (connected entrance medical_unit2)
-    (connected entrance medical_unit3)
+    ;(connected entrance medical_unit1)
+    ;(connected entrance medical_unit2)
+    ;(connected entrance medical_unit3)
   )
 
   (:goal
