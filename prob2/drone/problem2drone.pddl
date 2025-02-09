@@ -17,7 +17,7 @@
   (:init
     ; Initial positions of robots, drones, and patients
     (robot_at delivery_robot1 central_warehouse)
-    (robot_at delivery_robot2 central_warehouse)
+    ;(robot_at delivery_robot2 central_warehouse)
     (robot_at accompany_robot1 entrance)
     (robot_at drone1 central_warehouse)
     (robot_at drone2 central_warehouse)
@@ -46,11 +46,12 @@
     (carrier_at carrier4 central_warehouse)
     (robot_has_carrier delivery_robot1 carrier1)
     (robot_has_carrier delivery_robot2 carrier2)
-    
+    (robot_has_carrier drone1 carrier3)
+
     ; Carrier capacities
     (= (carrier_capacity carrier1) 3)
     (= (carrier_capacity carrier2) 2)
-    (= (carrier_capacity carrier3) 4)
+    (= (carrier_capacity carrier3) 2)
     (= (carrier_capacity carrier4) 5)
 
     (= (carrier_used carrier1) 0)
@@ -79,7 +80,7 @@
     (contains box9 tongue_depressor)
     (contains box10 tongue_depressor)
     
-    ; Location connections
+    ; Terrestrial connections
     (connected central_warehouse location1)
     (connected location1 central_warehouse)
     (connected location1 location2)
@@ -92,6 +93,14 @@
     (connected medical_unit1 location2)
     (connected entrance location2)
     (connected location2 entrance)
+    
+    
+    ; Drone port available
+    (has_drone_port medical_unit1)
+    (has_drone_port medical_unit2)
+
+    (has_drone_port central_warehouse)
+
   )
 
   (:goal
