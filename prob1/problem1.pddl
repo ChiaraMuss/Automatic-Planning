@@ -2,52 +2,76 @@
   (:domain healthcare)
 
   (:objects
-    central_warehouse entrance location1 location2 - location
+    central_warehouse entrance location1 location2 location3 - location
     scalpel tongue_depressor aspirin - content
-    box1 box2 - box
-    robot1 robot2 - robot
-    accompany_robot1 accompany_robot2 - accompany_robot  ; New robot type for accompanying patients
+    box1 box2 box3 box4 box5 - box
+    delivery_robot - robot
+    accompany_robot - robot
     patient1 patient2 - patient
-    medical_unit1 medical_unit2 - medical_unit  ; Separate objects for medical units
+    medical_unit1 medical_unit2 medical_unit3 - medical_unit
   )
 
   (:init
-    ; Initial positions of robots and patients
-    (robot_at robot1 central_warehouse)
-    (robot_at robot2 entrance)
-    (robot_at accompany_robot1 entrance)
-    (robot_at accompany_robot2 central_warehouse)  ; This robot is at a different location
-    (patient_at patient1 entrance)    ; Patient 1 is at the entrance (location)
-    (patient_at patient2 entrance)    ; Patient 2 is at the entrance (location)
+    ;; Posizione iniziale dei robot
+    (robot_at delivery_robot central_warehouse)
+    (robot_at accompany_robot entrance)
 
-    ; Initial positions of boxes and contents
+    ;; Posizione iniziale dei pazienti
+    (patient_at patient1 entrance)
+    (patient_at patient2 entrance)
+
+    ;; Posizione iniziale delle scatole
     (at_box box1 central_warehouse)
     (at_box box2 central_warehouse)
-    (at_content scalpel central_warehouse)
-    (at_content tongue_depressor central_warehouse)
-    (at_content aspirin central_warehouse)
+    (at_box box3 central_warehouse)
+    (at_box box4 central_warehouse)
+    (at_box box5 central_warehouse)
 
-    ; Connections between locations
-    (connected central_warehouse entrance)
-    (connected entrance location1)
+    ;; Contenuti delle scatole
+    (contains box1 scalpel)
+    (contains box2 tongue_depressor)
+    (contains box3 aspirin)
+    (contains box4 scalpel)
+    (contains box5 aspirin)
+
+    ;; Connessioni bidirezionali tra le location
+    (connected central_warehouse location1)
+    (connected location1 central_warehouse)
+
     (connected location1 location2)
-    (connected location2 central_warehouse)  ; Added to ensure a round trip
+    (connected location2 location1)
 
-    ; Associate medical units with locations
-    (at_location medical_unit1 location1)  ; Medical unit 1 is located at location1
-    (at_location medical_unit2 location2)  ; Medical unit 2 is located at location2
+    (connected location2 entrance)
+    (connected entrance location2)
 
-    ; Medical units require specific contents
-    (has medical_unit1 scalpel)
-    (has medical_unit2 aspirin)
+    (connected entrance location1)
+    (connected location1 entrance)
+
+    (connected location1 medical_unit1)
+    (connected medical_unit1 location1)
+
+    (connected location2 medical_unit2)
+    (connected medical_unit2 location2)
+
+    (connected location3 medical_unit3)
+    (connected medical_unit3 location3)
+
+    (connected location2 location3)
+    (connected location3 location2)
+
+    (connected entrance medical_unit1)
+    (connected entrance medical_unit2)
+    (connected entrance medical_unit3)
   )
 
   (:goal
     (and
-      (has medical_unit1 scalpel)       ; Medical unit 1 has scalpel
-      (has medical_unit2 aspirin)      ; Medical unit 2 has aspirin
-      (patient_at patient1 location1)  ; Patient 1 reaches location1 (associated with medical_unit1)
-      (patient_at patient2 location2)  ; Patient 2 reaches location2 (associated with medical_unit2)
+      (medical_supplied medical_unit1)
+      (medical_supplied medical_unit2)
+      (medical_supplied medical_unit3)
+
+      (patient_at patient1 medical_unit1)
+      (patient_at patient2 medical_unit2)
     )
   )
 )
