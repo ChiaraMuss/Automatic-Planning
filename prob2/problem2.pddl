@@ -37,10 +37,6 @@
     (at_box box10 central_warehouse)
 
     ; Initial carrier positions and assignments
-    (carrier_at carrier1 central_warehouse)
-    (carrier_at carrier2 central_warehouse)
-    (carrier_at carrier3 central_warehouse)
-    (carrier_at carrier4 central_warehouse)
     (robot_has_carrier delivery_robot1 carrier1)
     (robot_has_carrier delivery_robot2 carrier2)
     

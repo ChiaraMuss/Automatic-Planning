@@ -1,0 +1,83 @@
+(define (domain healthcare-htn)
+  (:requirements :strips :typing :htn)
+
+  (:types 
+    location medical_unit inventory - location
+    box carrier - box
+    content 
+    delivery_robot accompany_robot - robot
+    patient)
+
+  (:predicates
+    ;; Robot movement and state
+    (robot_at ?r - robot ?l - location)
+    (robot_has_carrier ?r - delivery_robot ?b - box)
+    (connected ?l1 - location ?l2 - location)
+
+    ;; Box and inventory management
+    (at_box ?b - box ?l - location)
+    (contains ?b - box ?c - content)
+
+    ;; Medical unit inventory
+    (med_unit_inventory ?m - medical_unit ?c - content)
+
+    ;; Patient management
+    (free_to_accompany ?r - accompany_robot)
+    (accompanying_pat ?p - patient ?ar - accompany_robot)
+    (patient_at ?p - patient ?l - location)
+  )
+
+  ;; === ACTIONS ===
+  
+  (:action move
+    :parameters (?r - robot ?from - location ?to - location)
+    :precondition (and (robot_at ?r ?from) (connected ?from ?to))
+    :effect (and (not (robot_at ?r ?from)) (robot_at ?r ?to)))
+
+  (:action load_to_robot_carrier
+    :parameters (?r - delivery_robot ?b - box ?l - location)
+    :precondition (and (robot_at ?r ?l) (at_box ?b ?l))
+    :effect (and (not (at_box ?b ?l)) (robot_has_carrier ?r ?b)))
+
+  (:action unload_content
+    :parameters (?r - delivery_robot ?b - box ?m - medical_unit ?c - content)
+    :precondition (and (robot_at ?r ?m) (robot_has_carrier ?r ?b) (contains ?b ?c))
+    :effect (and (not (contains ?b ?c)) (med_unit_inventory ?m ?c)))
+
+  (:action take_patient
+    :parameters (?ar - accompany_robot ?from - location ?p - patient)
+    :precondition (and (robot_at ?ar ?from) (patient_at ?p ?from) (free_to_accompany ?ar))
+    :effect (and (not (patient_at ?p ?from)) (not (free_to_accompany ?ar)) (accompanying_pat ?p ?ar)))
+
+  (:action deliver_patient
+    :parameters (?ar - accompany_robot ?m - medical_unit ?p - patient)
+    :precondition (and (robot_at ?ar ?m) (accompanying_pat ?p ?ar))
+    :effect (and (not (accompanying_pat ?p ?ar)) (free_to_accompany ?ar) (patient_at ?p ?m)))
+
+  ;; === HTN TASKS ===
+  (:task deliver_supplies
+    :parameters (?r - delivery_robot ?m - medical_unit ?b - box ?c - content))
+
+  (:task transfer_patient
+    :parameters (?ar - accompany_robot ?p - patient ?m - medical_unit))
+
+  ;; === HTN METHODS ===
+  
+  (:method deliver_supplies_method
+    :parameters (?r - delivery_robot ?m - medical_unit ?b - box ?c - content)
+    :task (deliver_supplies ?r ?m ?b ?c)
+    :precondition (and (robot_at ?r ?l) (at_box ?b ?l))
+    :subtasks (ordered
+      (load_to_robot_carrier ?r ?b ?l)
+      (move ?r ?l ?m)
+      (unload_content ?r ?b ?m ?c)))
+
+  (:method transfer_patient_method
+    :parameters (?ar - accompany_robot ?p - patient ?m - medical_unit)
+    :task (transfer_patient ?ar ?p ?m)
+    :precondition (and (robot_at ?ar ?from) (patient_at ?p ?from))
+    :subtasks (ordered
+      (take_patient ?ar ?from ?p)
+      (move ?ar ?from ?m)
+      (deliver_patient ?ar ?m ?p)))
+)

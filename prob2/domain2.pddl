@@ -56,9 +56,8 @@
   ;; Move robot along with its carrier
   (:action move_with_carrier
     :parameters (?r - delivery_robot ?c - carrier ?from - location ?to - location)
-    :precondition (and (robot_at ?r ?from) (carrier_at ?c ?from) (robot_has_carrier ?r ?c) (connected ?from ?to))
-    :effect (and (not (carrier_at ?c ?from)) (carrier_at ?c ?to)
-      (not (robot_at ?r ?from)) (robot_at ?r ?to))
+    :precondition (and (robot_at ?r ?from) (robot_has_carrier ?r ?c) (connected ?from ?to))
+    :effect (and (not (robot_at ?r ?from)) (robot_at ?r ?to))
   )
 
   ;; Unload content at a medical unit
