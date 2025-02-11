@@ -1,0 +1,168 @@
+
+// https://geojson.io/#map=16.94/45.486198/9.166834
+{
+    "type": "FeatureCollection",
+    "features": [
+        {
+            "type": "Feature",
+            "properties": {
+                "A  ": "entrance",
+                "B": "sector_c"
+            },
+            "geometry": {
+                "coordinates": [
+                    [
+                        9.167103623580772,
+                        45.48581768322995
+                    ],
+                    [
+                        9.167431108922813,
+                        45.48574488466733
+                    ]
+                ],
+                "type": "LineString"
+            },
+            "id": 0
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "A": "sector_c",
+                "B": "sector_b"
+            },
+            "geometry": {
+                "coordinates": [
+                    [
+                        9.167431108919942,
+                        45.48571957159257
+                    ],
+                    [
+                        9.167249620008562,
+                        45.485454488637544
+                    ],
+                    [
+                        9.166659781046803,
+                        45.48539793744635
+                    ]
+                ],
+                "type": "LineString"
+            },
+            "id": 1
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "A": "sector_b",
+                "B": "sector_a"
+            },
+            "geometry": {
+                "coordinates": [
+                    [
+                        9.166614408818987,
+                        45.48542267859918
+                    ],
+                    [
+                        9.166221182844083,
+                        45.48567362396943
+                    ],
+                    [
+                        9.166453085341772,
+                        45.48584681096767
+                    ]
+                ],
+                "type": "LineString"
+            },
+            "id": 2
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "Name": "central_warehouse"
+            },
+            "geometry": {
+                "coordinates": [
+                    9.165974156269812,
+                    45.48560646968423
+                ],
+                "type": "Point"
+            },
+            "id": 3
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "Name": "heliport_alpha"
+            },
+            "geometry": {
+                "coordinates": [
+                    9.167536977452215,
+                    45.48595637797743
+                ],
+                "type": "Point"
+            },
+            "id": 4
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "A ": "central_warehouse",
+                "stroke": "#99c1f1",
+                "stroke-width": 2,
+                "stroke-opacity": 1,
+                "B": "heliport_alpha"
+            },
+            "geometry": {
+                "coordinates": [
+                    [
+                        9.165974156269812,
+                        45.485663020666806
+                    ],
+                    [
+                        9.167557142886324,
+                        45.485998790955904
+                    ]
+                ],
+                "type": "LineString"
+            },
+            "id": 5
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "A": "central_warehouse",
+                "B": "sector_b"
+            },
+            "geometry": {
+                "coordinates": [
+                    [
+                        9.165979555278824,
+                        45.485606502581504
+                    ],
+                    [
+                        9.166387264875254,
+                        45.485842292676125
+                    ]
+                ],
+                "type": "LineString"
+            },
+            "id": 6
+        },
+        {
+            "type": "Feature",
+            "properties": {},
+            "geometry": {
+                "coordinates": [
+                    [
+                        9.167534922266867,
+                        45.48595423139756
+                    ],
+                    [
+                        9.16742863221657,
+                        45.48574735942003
+                    ]
+                ],
+                "type": "LineString"
+            }
+        }
+    ]
+}
