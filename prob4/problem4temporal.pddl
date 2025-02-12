@@ -20,9 +20,13 @@
         (=(speed delivery_robot1) 2.0)
         (=(speed delivery_robot2) 2.0)
         (=(speed accompany_robot1) 1.1); average walking speed is 1,3 m/s since we are in a hospital with older people we made it slower 
+        (=(speed drone1) 14); around 50km/h
+        (=(speed drone2) 14); around 50km/h
+
         (=(expected_patient_interaction_time) 30)
         (=(loading_time) 10)
         (=(unloading_time) 5)
+        (=(content_unload_time) 5)
         ;; Initial positions of robots, drones, and patients
         (robot_at delivery_robot1 central_warehouse)
         (robot_at delivery_robot2 central_warehouse)
@@ -53,8 +57,8 @@
         (robot_has_carrier drone1 carrier3)
         ;
         ;; Carrier capacities
-        (= (carrier_capacity carrier1) 3)
-        (= (carrier_capacity carrier2) 2)
+        (= (carrier_capacity carrier1) 1)
+        (= (carrier_capacity carrier2) 1)
         (= (carrier_capacity carrier3) 2)
         (= (carrier_capacity carrier4) 5)
         
@@ -165,12 +169,14 @@
     (:goal
         (and
             ;(robot_at accompany_robot1 sector_a)
-
-            ;(accompanying_pat rocco accompany_robot1)
-            ;
-            ;(accompanying_pat rocco accompany_robot1)
+            (= 3 (med_unit_inventory_of day_hospital aspirin))
+            ;(= 1 (med_unit_inventory_of cardiology tongue_depressor))
+            ;(= 2 (med_unit_inventory_of dentistry aspirin))
+            ;(= 2 (med_unit_inventory_of dentistry tongue_depressor))
+            ;(= 2 (med_unit_inventory_of neuro_surgery scalpel))
+            (carrier_load carrier3 box10)
             (patient_at rocco cardiology)
-            (at_box box1 sector_c)
+
             ;(patient_at ciro day_hospital)
         )
     )

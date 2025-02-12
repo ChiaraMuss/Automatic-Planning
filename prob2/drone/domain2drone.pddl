@@ -82,14 +82,13 @@
       (not (robot_at ?d ?from)) (robot_at ?d ?to))
   )
 
-  ;; TODO ha senso che un drone svuoti un pacco?
-
-  ;; Unload content at a medical unit
-  (:action unload_content_drone
-    :parameters (?r - drone ?b - box ?m - medical_unit ?c - content)
-    :precondition (and (robot_at ?r ?m) (at_box ?b ?m) (contains ?b ?c))
-    :effect (and (not (contains ?b ?c)) (increase (med_unit_inventory_of ?m ?c) 1))
+  (:action unload_from_drone_carrier
+    :parameters (?d - drone ?c - carrier ?b - box ?l - location)
+    :precondition (and (robot_at ?d ?l) (robot_has_carrier ?d ?c) (carrier_load ?c ?b))
+    :effect (and (at_box ?b ?l) (not (carrier_load ?c ?b)) (decrease (carrier_used ?c) 1))
   )
+
+  ;; TODO ha senso che un drone svuoti un pacco?
   ;;---------------------------------------------- PATIENTS MANAGEMENT
   ;; Patient transfer
   (:action take_patient
