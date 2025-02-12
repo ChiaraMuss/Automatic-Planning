@@ -174,7 +174,7 @@
             ;(= 2 (med_unit_inventory_of dentistry aspirin))
             ;(= 2 (med_unit_inventory_of dentistry tongue_depressor))
             ;(= 2 (med_unit_inventory_of neuro_surgery scalpel))
-            (carrier_load carrier3 box10)
+            ;(carrier_load carrier3 box10)
             (patient_at rocco cardiology)
 
             ;(patient_at ciro day_hospital)
