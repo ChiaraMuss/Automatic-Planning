@@ -56,14 +56,6 @@
     :effect (and (at_box ?b ?l) (not (carrier_load ?c ?b)) (decrease (carrier_used ?c) 1))
   )
 
-  ;; Move robot along with its carrier
-  (:action move_with_carrier
-    :parameters (?r - delivery_robot ?c - carrier ?from - location ?to - location)
-    :precondition (and (robot_at ?r ?from) (carrier_at ?c ?from) (robot_has_carrier ?r ?c) (connected ?from ?to))
-    :effect (and (not (carrier_at ?c ?from)) (carrier_at ?c ?to)
-      (not (robot_at ?r ?from)) (robot_at ?r ?to))
-  )
-
 
   ;; Unload content at a medical unit
   (:action unload_content
@@ -88,13 +80,6 @@
     :precondition (and (robot_at ?d ?from) (carrier_at ?c ?from) (robot_has_carrier ?d ?c) (has_drone_port ?from) (has_drone_port ?to))
     :effect (and (not (carrier_at ?c ?from)) (carrier_at ?c ?to)
       (not (robot_at ?d ?from)) (robot_at ?d ?to))
-  )
-
-  ;; Unload a box from a drone
-  (:action unload_from_drone_carrier
-    :parameters (?d - drone ?c - carrier ?b - box ?l - location)
-    :precondition (and (robot_at ?d ?l) (robot_has_carrier ?d ?c) (carrier_load ?c ?b))
-    :effect (and (at_box ?b ?l) (not (carrier_load ?c ?b)) (decrease (carrier_used ?c) 1))
   )
 
   ;; TODO ha senso che un drone svuoti un pacco?

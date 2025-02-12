@@ -4,15 +4,17 @@
 (define (domain temporal_healthcare)
 
     ;remove requirements that are not needed
-    (:requirements :typing :durative-actions :numeric-fluents)
+    (:requirements :strips :typing :durative-actions :numeric-fluents)
 
     (:types ;todo: enumerate types and their hierarchy here, e.g. car truck bus - vehicle
-            medical_unit inventory - location
-            scissor band_aid syringes - content
-            terrestrial_robot arial_robot - robot
+            
+            medical_unit inventory generic_location - location
+            content
+            terrestrial_robot arial_robot  - robot
             delivery_robot accompany_robot - terrestrial_robot
             drone - arial_robot
-            carrier - box
+            carrier
+            box
             patient
     )
 
@@ -58,11 +60,11 @@
 
         :condition (and 
             (at start(robot_at ?r ?from))
-            (at start (connected ?from ?to))
+            (over all (connected ?from ?to))
         )
 
         :effect (and 
-            (at end(not (robot_at ?r ?from)))
+            (at start(not (robot_at ?r ?from)))
             (at end(robot_at ?r ?to))
         )
     )
@@ -79,7 +81,7 @@
         )
         :effect (and 
             (at end (not (patient_at ?p ?w)))
-            (at start (not (free_to_accompany ?ar)))
+            (at end (not (free_to_accompany ?ar)))
             (at end (accompanying_pat ?p ?ar))
         )
     )
@@ -92,9 +94,11 @@
             (at start (accompanying_pat ?p ?ar))
         )
         :effect (and
-                (at end (free_to_accompany ?ar))
-                (at end (patient_at ?p ?m))
+                (at start (not (accompanying_pat ?p ?ar)))
+                (at start (free_to_accompany ?ar))
+                (at start (patient_at ?p ?m))
             )
     )
+    
 
 )
