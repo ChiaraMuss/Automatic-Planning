@@ -21,6 +21,8 @@
         (=(speed delivery_robot2) 2.0)
         (=(speed accompany_robot1) 1.1); average walking speed is 1,3 m/s since we are in a hospital with older people we made it slower 
         (=(expected_patient_interaction_time) 30)
+        (=(loading_time) 10)
+        (=(unloading_time) 5)
         ;; Initial positions of robots, drones, and patients
         (robot_at delivery_robot1 central_warehouse)
         (robot_at delivery_robot2 central_warehouse)
@@ -46,10 +48,6 @@
         (at_box box10 central_warehouse)
         ;
         ;; Initial carrier positions and assignments
-        (carrier_at carrier1 central_warehouse)
-        (carrier_at carrier2 central_warehouse)
-        (carrier_at carrier3 central_warehouse)
-        (carrier_at carrier4 central_warehouse)
         (robot_has_carrier delivery_robot1 carrier1)
         (robot_has_carrier delivery_robot2 carrier2)
         (robot_has_carrier drone1 carrier3)
@@ -172,6 +170,7 @@
             ;
             ;(accompanying_pat rocco accompany_robot1)
             (patient_at rocco cardiology)
+            (at_box box1 sector_c)
             ;(patient_at ciro day_hospital)
         )
     )
