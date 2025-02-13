@@ -54,11 +54,16 @@
     :effect ()
   )
 
-  (:task deliver_patient
-    :parameters (?p - patient ?m - medical_unit)
-    :precondition ()
-    :effect ()
+  (:task deliver-supply
+  :parameters (?s - content ?p - patient ?m - medical_unit)
+  :precondition (and
+    (patient_at ?p ?m)
+    (contains ?b ?s)
+    (robot_at ?r ?from)
   )
+  :effect ()
+)
+
 
   (:task prepare-box
     :parameters (?b - box ?r - robot ?s - content)
@@ -128,18 +133,21 @@
 
   ;; Methods for delivering patients
   (:method m_deliver_patient
-    :parameters (?ar - accompany_robot ?m - medical_unit ?p - patient)
-    :task (deliver_patient ?ar ?m ?p)
-    :subtasks (and
-      (task0 (accompany_patient ?p ?ar))
-      (task1 (move ?ar ?from ?to))  ;; Assuming a move from the patient's location to the medical unit
-      (task2 (deliver_patient ?ar ?m ?p))
-    )
-    :ordering (and
+  :parameters (?ar - accompany_robot ?m - medical_unit ?p - patient)
+  :task (deliver_patient ?ar ?m ?p)
+  :subtasks (and
+      (task0 (move ?ar ?from ?to))
+      (task1 (accompanying_pat ?p ?ar))
+      (task2 (move ?ar ?from ?to))
+      (task3 (deliver_patient ?p ?m))
+  )
+  :ordering (and
       (task0 < task1)
       (task1 < task2)
-    )
+      (task2 < task3)
   )
+)
+
 
   ;; Actions for loading and unloading
   (:action pick-up
