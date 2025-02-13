@@ -1,0 +1,180 @@
+(define (domain healthcare3)
+
+  ;; Requirements
+  (:requirements :typing :hierarchy :negative-preconditions :strips :action-costs)
+
+  ;; Types
+  (:types
+    location inventory - object
+    medical_unit - location
+    content - object
+    scissor band_aid syringes - content
+    robot - object
+    terrestrial_robot aerial_robot - robot
+    delivery_robot accompany_robot - terrestrial_robot
+    drone - aerial_robot
+    box - object
+    carrier - object
+    patient - object
+    capacity-number - object
+  )
+
+  ;; Predicates
+  (:predicates
+    ;; States of robots and boxes
+    (robot_at ?r - robot ?l - location)
+    (contains ?b - box ?c - content)
+    (carrier_load ?c - carrier ?b - box)
+    (carrier_at ?c - carrier ?l - location)
+    (robot_has_carrier ?r - robot ?c - carrier)
+    (connected ?l1 - location ?l2 - location)
+    (has_drone_port ?l - location)  ;; Drone port availability
+    (at_box ?b - box ?l - location)
+    (free_to_accompany ?r - accompany_robot)  ;; Robot availability to accompany
+    (accompanying_pat ?p - patient ?ar - accompany_robot)
+    (patient_at ?p - patient ?l - location)
+
+    ;; Box capacity and loading status
+    (empty ?b - box)
+    (full ?b - box ?c - content)
+    (loaded ?r - robot ?b - box)
+
+    ;; Robot availability
+    (free ?r - robot)
+
+    ;; Capacity of carriers
+    (capacity ?c - carrier ?cap - capacity-number)
+    (capacity-predecessor ?s1 - capacity-number ?s2 - capacity-number)
+  )
+
+  ;; Tasks
+  (:task deliver-supply
+    :parameters (?s - content ?p - patient ?m - medical_unit)
+    :precondition ()
+    :effect ()
+  )
+
+  (:task deliver_patient
+    :parameters (?p - patient ?m - medical_unit)
+    :precondition ()
+    :effect ()
+  )
+
+  (:task prepare-box
+    :parameters (?b - box ?r - robot ?s - content)
+    :precondition ()
+    :effect ()
+  )
+
+  (:task load-supply
+    :parameters (?r - robot ?b - box ?s - content ?l - location ?c - carrier)
+    :precondition (and
+      (robot_at ?r ?l)
+      (at_box ?b ?l)
+      (contains ?b ?s)
+      (empty ?b)
+      (robot_has_carrier ?r ?c)
+      (not (carrier_load ?c ?b))
+      (capacity-predecessor ?s1 ?s2 - capacity-number)
+      (capacity ?c ?s2)
+      (not (capacity ?c ?s1)))  ;; Ensure the carrier's capacity is sufficient for the box
+    :effect (and
+      (full ?b ?s)
+      (not (empty ?b))
+      (carrier_load ?c ?b)
+      (loaded ?r ?b))
+  )
+
+  (:task unload-supply
+    :parameters (?r - robot ?b - box ?s - content ?l - location)
+    :precondition (and
+      (robot_at ?r ?l)
+      (full ?b ?s))
+    :effect (and
+      (empty ?b)
+      (not (full ?b ?s))
+    )
+  )
+
+  (:task move
+    :parameters (?r - robot ?from - location ?to - location)
+    :precondition (and
+      (robot_at ?r ?from)
+      (connected ?from ?to)
+      (free ?r))
+    :effect (and
+      (not (robot_at ?r ?from))
+      (robot_at ?r ?to))
+  )
+
+  ;; Methods
+  (:method m_deliver_supply
+    :parameters (?from ?to - location ?b - box ?s - content ?r - robot ?c - carrier ?m - medical_unit)
+    :task (deliver_supply ?s ?p ?m)
+    :subtasks (and
+        (task0 (prepare-box ?b ?r ?s))
+        (task1 (move ?r ?from ?to))
+        (task2 (load-supply ?r ?b ?s ?from ?c))
+        (task3 (unload-supply ?r ?b ?s ?to))
+        (task4 (deliver_patient ?r ?m ?p))
+    )
+    :ordering (and
+        (task0 < task1)
+        (task1 < task2)
+        (task2 < task3)
+        (task3 < task4)
+    )
+  )
+
+  ;; Methods for delivering patients
+  (:method m_deliver_patient
+    :parameters (?ar - accompany_robot ?m - medical_unit ?p - patient)
+    :task (deliver_patient ?ar ?m ?p)
+    :subtasks (and
+      (task0 (accompany_patient ?p ?ar))
+      (task1 (move ?ar ?from ?to))  ;; Assuming a move from the patient's location to the medical unit
+      (task2 (deliver_patient ?ar ?m ?p))
+    )
+    :ordering (and
+      (task0 < task1)
+      (task1 < task2)
+    )
+  )
+
+  ;; Actions for loading and unloading
+  (:action pick-up
+    :parameters (?r - robot ?l - location ?b - box ?s - content ?c - carrier ?s1 ?s2 - capacity-number)
+    :precondition (and
+      (robot_at ?r ?l)
+      (at_box ?b ?l)
+      (contains ?b ?s)
+      (capacity-predecessor ?s1 ?s2)
+      (capacity ?c ?s2)
+      (not (capacity ?c ?s1))
+    )
+    :effect (and
+      (not (at_box ?b ?l))
+      (carrier_load ?c ?b)
+      (loaded ?r ?b)
+      (capacity ?c ?s1)
+      (not (capacity ?c ?s2))
+    )
+  )
+
+  (:action drop-off
+    :parameters (?r - robot ?l - location ?b - box ?s - content ?c - carrier ?s1 ?s2 - capacity-number)
+    :precondition (and
+      (robot_at ?r ?l)
+      (carrier_load ?c ?b)
+      (capacity-predecessor ?s1 ?s2)
+      (capacity ?c ?s1)
+    )
+    :effect (and
+      (not (carrier_load ?c ?b))
+      (at_box ?b ?l)
+      (capacity ?c ?s2)
+      (not (capacity ?c ?s1))
+    )
+  )
+
+)
