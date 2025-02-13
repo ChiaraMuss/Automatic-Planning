@@ -1,7 +1,9 @@
 (define (domain healthcare3)
 
-  (:requirements :strips :typing :negative-preconditions :equality :hierarchy)
+  ;; Requirements
+  (:requirements :typing :hierarchy :negative-preconditions :strips)
 
+  ;; Types
   (:types
     location inventory - object
     medical_unit - location
@@ -11,71 +13,184 @@
     terrestrial_robot aerial_robot - robot
     delivery_robot accompany_robot - terrestrial_robot
     drone - aerial_robot
-    box carrier - object
+    box - object
+    carrier - object
     patient - object
   )
 
+  ;; Predicates
   (:predicates
+    ;; States of robots and boxes
     (robot_at ?r - robot ?l - location)
     (contains ?b - box ?c - content)
     (carrier_load ?c - carrier ?b - box)
     (carrier_at ?c - carrier ?l - location)
     (robot_has_carrier ?r - robot ?c - carrier)
     (connected ?l1 - location ?l2 - location)
-    (has_drone_port ?l - location)
+    (has_drone_port ?l - location)  ;; Drone port availability
     (at_box ?b - box ?l - location)
-    (free_to_accompany ?r - accompany_robot)
+    (free_to_accompany ?r - accompany_robot)  ;; Robot availability to accompany
     (accompanying_pat ?p - patient ?ar - accompany_robot)
     (patient_at ?p - patient ?l - location)
+
+    ;; Box capacity and loading status
+    (empty ?b - box)
+    (full ?b - box ?c - content)
+    (loaded ?r - robot ?b - box)
+    
+    ;; Robot availability
+    (free ?r - robot)
+
+    ;; Capacity of carriers
+    (capacity ?c - carrier ?cap - cap_number)
   )
 
-  ;; TASKS (definiti correttamente)
-  (:task (move ?r - terrestrial_robot ?from - location ?to - location))
-  (:task (load_to_robot_carrier ?r - delivery_robot ?b - box ?c - carrier ?l - inventory))
-  (:task (unload_from_robot_carrier ?r - delivery_robot ?b - box ?c - carrier ?l - location))
-  (:task (take_patient ?ar - accompany_robot ?w - location ?p - patient))
-  (:task (deliver_patient ?ar - accompany_robot ?m - medical_unit ?p - patient))
+  ;; Tasks
+  (:task deliver-supply
+    :parameters (?s - content ?p - patient ?m - medical_unit)
+    :precondition ()
+    :effect ()
+  )
 
-  ;; METHODS
-  (:method m_move_robot
-    :parameters (?r - terrestrial_robot ?from - location ?to - location)
-    :task (move ?r ?from ?to)
+  (:task deliver_patient
+    :parameters (?p - patient ?m - medical_unit)
+    :precondition ()
+    :effect ()
+  )
+
+  (:task prepare-box
+    :parameters (?b - box ?r - robot ?s - content)
+    :precondition ()
+    :effect ()
+  )
+
+  (:task load-supply
+    :parameters (?r - robot ?b - box ?s - content ?l - location ?c - carrier)
+    :precondition (and
+      (robot_at ?r ?l)
+      (at_box ?b ?l)
+      (contains ?b ?s)
+      (empty ?b)
+      (robot_has_carrier ?r ?c)
+      (not (carrier_load ?c ?b))
+      (<= (capacity ?c) 5))  ;; Ensure the carrier has enough capacity for the box
+    :effect (and
+      (full ?b ?s)
+      (not (empty ?b))
+      (carrier_load ?c ?b)
+      (loaded ?r ?b))
+  )
+
+  (:task unload-supply
+    :parameters (?r - robot ?b - box ?s - content ?l - location)
+    :precondition (and
+      (robot_at ?r ?l)
+      (full ?b ?s))
+    :effect (and
+      (empty ?b)
+      (not (full ?b ?s))
+    )
+  )
+
+  (:task move
+    :parameters (?r - robot ?from - location ?to - location)
+    :precondition (and
+      (robot_at ?r ?from)
+      (connected ?from ?to)
+      (free ?r))
+    :effect (and
+      (not (robot_at ?r ?from))
+      (robot_at ?r ?to))
+  )
+
+  ;; Methods
+  (:method m_deliver_supply
+    :parameters (?from ?to - location ?b - box ?s - content ?r - robot ?c - carrier ?m - medical_unit)
+    :task (deliver_supply ?s ?p ?m)
     :subtasks (and
-      (execute_move ?r ?from ?to))
+        (task0 (prepare-box ?b ?r ?s))
+        (task1 (move ?r ?from ?to))
+        (task2 (load-supply ?r ?b ?s ?from ?c))
+        (task3 (unload-supply ?r ?b ?s ?to))
+        (task4 (deliver_patient ?r ?m ?p))
+    )
+    :ordering (and
+        (task0 < task1)
+        (task1 < task2)
+        (task2 < task3)
+        (task3 < task4)
+    )
   )
 
-  (:method m_take_patient
-    :parameters (?ar - accompany_robot ?w - location ?p - patient)
-    :task (take_patient ?ar ?w ?p)
-    :subtasks (and
-      (execute_take_patient ?ar ?w ?p))
-  )
-
+  ;; Methods for delivering patients
   (:method m_deliver_patient
     :parameters (?ar - accompany_robot ?m - medical_unit ?p - patient)
     :task (deliver_patient ?ar ?m ?p)
     :subtasks (and
-      (execute_deliver_patient ?ar ?m ?p))
+      (task0 (take_patient ?ar ?m ?p))
+      (task1 (move ?ar ?m ?p))
+      (task2 (deliver_patient ?ar ?m ?p))
+    )
+    :ordering (and
+      (task0 < task1)
+      (task1 < task2)
+    )
   )
 
-  ;; ACTIONS
+  ;; Action for moving robots
   (:action execute_move
-    :parameters (?r - terrestrial_robot ?from - location ?to - location)
-    :precondition (and (robot_at ?r ?from) (connected ?from ?to))
-    :effect (and (not (robot_at ?r ?from)) (robot_at ?r ?to))
+    :parameters (?r - robot ?from - location ?to - location ?c - carrier)
+    :precondition (and 
+      (robot_at ?r ?from) 
+      (connected ?from ?to)
+      (carrier_at ?c ?from))  ;; Ensure the carrier is at the robot's location
+    :effect (and 
+      (not (robot_at ?r ?from)) 
+      (robot_at ?r ?to) 
+      (carrier_at ?c ?to))  ;; Move the carrier along with the robot
   )
 
-  (:action execute_take_patient
-    :parameters (?ar - accompany_robot ?w - location ?p - patient)
-    :precondition (and (robot_at ?ar ?w) (free_to_accompany ?ar) (patient_at ?p ?w))
-    :effect (and (not (patient_at ?p ?w)) (not (free_to_accompany ?ar)) (accompanying_pat ?p ?ar))
+  ;; Action for loading supplies into boxes
+  (:action execute_load_supply
+    :parameters (?r - robot ?b - box ?s - content ?l - location)
+    :precondition (and (robot_at ?r ?l) (at_box ?b ?l) (contains ?b ?s) (empty ?b))
+    :effect (and (full ?b ?s) (not (empty ?b)))
   )
 
+  ;; Action for unloading supplies from boxes
+  (:action execute_unload_supply
+    :parameters (?r - robot ?b - box ?s - content ?l - location)
+    :precondition (and (robot_at ?r ?l) (full ?b ?s))
+    :effect (and (empty ?b) (not (full ?b ?s)))
+  )
+
+  ;; Action for delivering patients
   (:action execute_deliver_patient
     :parameters (?ar - accompany_robot ?m - medical_unit ?p - patient)
     :precondition (and (robot_at ?ar ?m) (accompanying_pat ?p ?ar))
-    :effect (and (not (accompanying_pat ?p ?ar)) (free_to_accompany ?ar) (patient_at ?p ?m))
+    :effect (and (not (accompanying_pat ?p ?ar)) (patient_at ?p ?m))
+  )
+
+  ;; Action for drone tasks
+  (:action execute_drone_task
+    :parameters (?d - drone ?l - location)
+    :precondition (has_drone_port ?l)  ;; Ensure the location has a drone port
+    :effect (drone_operating ?d ?l)    ;; Mark the drone as operating at that location
+  )
+
+  ;; Action for escorting patients with a free accompanying robot
+  (:action execute_take_patient
+    :parameters (?ar - accompany_robot ?p - patient ?l - location)
+    :precondition (and 
+      (robot_at ?ar ?l)  ;; Ensure the robot is at the location
+      (free_to_accompany ?ar)  ;; Ensure the robot is free to accompany the patient
+      (patient_at ?p ?l))      ;; Ensure the patient is at the location
+    :effect (and 
+      (not (patient_at ?p ?l))  ;; The patient is no longer at the location
+      (accompanying_pat ?p ?ar)  ;; Mark the robot as accompanying the patient
+      (not (free_to_accompany ?ar)))  ;; The robot is no longer free
   )
 )
+
 
 
