@@ -1,0 +1,19 @@
+docker exec -it [container-id] bash # connect new terminal to already running docker
+
+colcon build --packages-select <name-of-pkg> --symlink-install # rebuild single package 
+
+"source install/setup.zsh" or "source install/setup.sh" #make the terminal aware of the compiled packages depending on the terminal type
+
+## How to run
+
+In terminal 1:
+
+```
+ros2 launch plansys_pddl healthcare_plansys_launch.py
+```
+
+In terminal 2:
+
+```
+ros2 run plansys2_terminal plansys2_terminal        # enters in PlanSys2 Terminal
+```

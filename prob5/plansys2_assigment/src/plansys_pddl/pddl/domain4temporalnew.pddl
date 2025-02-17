@@ -4,7 +4,7 @@
 (define (domain temporal_healthcare)
 
   ;remove requirements that are not needed
-  (:requirements :strips :typing :durative-actions :numeric-fluents)
+  (:requirements :strips :typing :durative-actions :fluents :durative-actions)
 
   (:types ;todo: enumerate types and their hierarchy here, e.g. car truck bus - vehicle
 
@@ -69,7 +69,7 @@
 
   (:durative-action load_to_robot_carrier
     :parameters (?r - delivery_robot ?b - box ?c - carrier ?l - inventory)
-    :duration (= ?duration loading_time)
+    :duration (= ?duration (loading_time)); added parenthesis
     :condition (and
       (at start (and
           (robot_has_carrier ?r ?c)
@@ -117,7 +117,7 @@
   )
   (:durative-action unload_content
   :parameters (?r - delivery_robot ?b - box ?m - medical_unit ?c - content)
-  :duration (= ?duration content_unload_time)
+  :duration (= ?duration (content_unload_time))
   :condition (and
     (at start (contains ?b ?c)) ; Ensure the box contains the specific content
     (over all (and
@@ -137,7 +137,7 @@
 
   (:durative-action load_to_drone_carrier
     :parameters (?d - drone ?b - box ?c - carrier ?l - location)
-    :duration (= ?duration loading_time)
+    :duration (= ?duration (loading_time))
     :condition (and
       (over all (and
           (robot_at ?d ?l)
@@ -157,7 +157,7 @@
 
   (:durative-action unload_from_drone_carrier
     :parameters (?d - drone ?c - carrier ?b - box ?l - location)
-    :duration (= ?duration unloading_time)
+    :duration (= ?duration (unloading_time))
     :condition (and
       (over all (and
           (robot_at ?d ?l)
@@ -201,7 +201,7 @@
   ;; Patient transfer 
   (:durative-action take_patient
     :parameters (?ar - accompany_robot ?w - location ?p - patient)
-    :duration (= ?duration expected_patient_interaction_time)
+    :duration (= ?duration (expected_patient_interaction_time))
     :condition (and
       (over all (robot_at ?ar ?w)) ; to force the robot to stay put during the action
       (at start (free_to_accompany ?ar))
@@ -217,7 +217,7 @@
   
   (:durative-action deliver_patient
     :parameters (?ar - accompany_robot ?m - medical_unit ?p - patient)
-    :duration (= ?duration expected_patient_interaction_time)
+    :duration (= ?duration (expected_patient_interaction_time))
     :condition (and
       (over all (robot_at ?ar ?m))
       (at start (accompanying_pat ?p ?ar))

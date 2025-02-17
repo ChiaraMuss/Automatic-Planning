@@ -155,26 +155,7 @@
     )
   )
 
-  (:durative-action unload_from_drone_carrier
-    :parameters (?d - drone ?c - carrier ?b - box ?l - location)
-    :duration (= ?duration unloading_time)
-    :condition (and
-      (over all (and
-          (robot_at ?d ?l)
-          (robot_has_carrier ?d ?c)
-          (carrier_load ?c ?b)
-        ))
-    )
-    :effect (and
-      (at start (and
-        ))
-      (at end (and
-          (at_box ?b ?l)
-          (not (carrier_load ?c ?b))))
-    )
-  )
-
-  (:durative-action move_drone
+  (:durative-action mode_drone
     :parameters (?d - drone ?c - carrier ?from - location ?to - location)
     :duration (= ?duration (/ (arial_distance ?from ?to) (speed ?d)))
     :condition (and
@@ -194,7 +175,24 @@
         ))
     )
   )
-
+  (:durative-action unload_from_drone_carrier
+    :parameters (?d - drone ?c - carrier ?b - box ?l - location)
+      :duration (= ?duration unloading_time)
+      :condition (and 
+          (over all (and
+          (robot_at ?d ?l) 
+          (robot_has_carrier ?d ?c) 
+          (carrier_load ?c ?b)
+        ))
+      )
+      :effect (and 
+          (at start (and 
+          ))
+          (at end (and
+          (at_box ?b ?l)
+          (not (carrier_load ?c ?b))))
+      )
+  )
   
 
   ;;---------------------------------------------- PATIENTS MANAGEMENT
@@ -213,8 +211,6 @@
       (at end (accompanying_pat ?p ?ar))
     )
   )
-
-  
   (:durative-action deliver_patient
     :parameters (?ar - accompany_robot ?m - medical_unit ?p - patient)
     :duration (= ?duration expected_patient_interaction_time)
