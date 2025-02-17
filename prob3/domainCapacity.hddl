@@ -1,0 +1,141 @@
+(define (domain healthcare3)
+
+  ;; Requirements
+  (:requirements :typing :hierarchy :negative-preconditions :strips :action-costs)
+
+  ;; Types
+  (:types
+    location inventory - object
+    medical_unit - location
+    content - object
+    scissor band_aid syringes - content
+    robot - object
+    terrestrial_robot aerial_robot - robot
+    delivery_robot accompany_robot - terrestrial_robot
+    drone - aerial_robot
+    box - object
+    carrier - object
+    patient - object
+    capacity-number - object
+  )
+
+  ;; Predicates
+  (:predicates
+    (robot_at ?r - robot ?l - location)
+    (contains ?b - box ?c - content)
+    (carrier_load ?c - carrier ?b - box)
+    (carrier_at ?c - carrier ?l - location)
+    (robot_has_carrier ?r - robot ?c - carrier)
+    (connected ?l1 - location ?l2 - location)
+    (has_drone_port ?l - location)
+    (at_box ?b - box ?l - location)
+    (free_to_accompany ?r - accompany_robot)
+    (accompanying_pat ?p - patient ?ar - accompany_robot)
+    (patient_at ?p - patient ?l - location)
+    (empty ?b - box)
+    (full ?b - box ?c - content)
+    (loaded ?r - robot ?b - box)
+    (free ?r - robot)
+    (capacity ?c - carrier ?cap - capacity-number)
+    (capacity-predecessor ?s1 - capacity-number ?s2 - capacity-number)
+  )
+
+  ;; **TASK HTN**
+  
+  (:task deliver-supply 
+    :parameters (?s - content ?p - patient ?m - medical_unit ?b - box ?r - robot ?from - location ?c - carrier))
+
+  (:task prepare-box 
+    :parameters (?b - box ?r - robot ?s - content))
+
+  (:task load-supply 
+    :parameters (?r - robot ?b - box ?s - content ?l - location ?c - carrier))
+
+  (:task unload-supply 
+    :parameters (?r - robot ?b - box ?s - content ?l - location))
+
+  (:task move 
+    :parameters (?r - robot ?from - location ?to - location))
+
+  (:task deliver-patient 
+    :parameters (?ar - accompany_robot ?m - medical_unit ?p - patient))
+
+  ;; **METODI HTN**
+  
+  (:method m-deliver-supply
+    :parameters (?r - robot ?b - box ?s - content ?from - location ?to - location ?p - patient ?m - medical_unit ?c - carrier)
+    :task (deliver-supply ?s ?p ?m ?b ?r ?from ?c)
+    :ordered-subtasks (and
+      (load-box ?r ?b ?s ?from ?c)
+      (move-robot ?r ?from ?to)
+      (unload-box ?r ?b ?s ?to))
+  )
+
+  (:method m-deliver-patient
+    :parameters (?ar - accompany_robot ?p - patient ?from - location ?m - medical_unit)
+    :task (deliver-patient ?ar ?m ?p)
+    :ordered-subtasks (and
+      (pick-up-patient ?ar ?p ?from)
+      (move-robot ?ar ?from ?m)
+      (drop-off-patient ?ar ?p ?m))
+  )
+
+  ;; **AZIONI PRIMITIVE**
+  
+  (:action move-robot
+    :parameters (?r - robot ?from - location ?to - location)
+    :precondition (and
+      (robot_at ?r ?from)
+      (connected ?from ?to)
+      (free ?r))
+    :effect (and
+      (not (robot_at ?r ?from))
+      (robot_at ?r ?to))
+  )
+
+  (:action load-box
+    :parameters (?r - robot ?b - box ?s - content ?l - location ?c - carrier)
+    :precondition (and
+      (robot_at ?r ?l)
+      (at_box ?b ?l)
+      (contains ?b ?s)
+      (robot_has_carrier ?r ?c)
+      (not (carrier_load ?c ?b)))
+    :effect (and
+      (full ?b ?s)
+      (carrier_load ?c ?b)
+      (loaded ?r ?b))
+  )
+
+  (:action unload-box
+    :parameters (?r - robot ?b - box ?s - content ?l - location)
+    :precondition (and
+      (robot_at ?r ?l)
+      (full ?b ?s))
+    :effect (and
+      (empty ?b)
+      (not (full ?b ?s)))
+  )
+
+  (:action pick-up-patient
+    :parameters (?ar - accompany_robot ?p - patient ?l - location)
+    :precondition (and
+      (robot_at ?ar ?l)
+      (patient_at ?p ?l)
+      (free_to_accompany ?ar))
+    :effect (and
+      (not (patient_at ?p ?l))
+      (accompanying_pat ?p ?ar))
+  )
+
+  (:action drop-off-patient
+    :parameters (?ar - accompany_robot ?p - patient ?m - medical_unit)
+    :precondition (and
+      (robot_at ?ar ?m)
+      (accompanying_pat ?p ?ar))
+    :effect (and
+      (not (accompanying_pat ?p ?ar))
+      (patient_at ?p ?m))
+  )
+
+)
