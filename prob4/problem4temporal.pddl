@@ -4,7 +4,7 @@
     (:objects
         central_warehouse heliport_alpha - inventory
         entrance sector_a sector_b sector_c - generic_location
-        scalpel tongue_depressor aspirin  - content
+        scalpel tongue_depressor aspirin - content
         box1 box2 box3 box4 box5 box6 box7 box8 box9 box10 - box
         delivery_robot1 delivery_robot2 - delivery_robot
         accompany_robot1 - accompany_robot
@@ -12,7 +12,7 @@
         carrier1 carrier2 carrier3 carrier4 - carrier
         rocco ciro - patient
         cardiology dentistry radiology neuro_surgery day_hospital - medical_unit
-        )
+    )
 
     (:init
         ; - distances in meters and durations in seconds
@@ -61,7 +61,7 @@
         (= (carrier_capacity carrier2) 1)
         (= (carrier_capacity carrier3) 2)
         (= (carrier_capacity carrier4) 5)
-        
+
         (= (carrier_used carrier1) 0)
         (= (carrier_used carrier2) 0)
         (= (carrier_used carrier3) 0)
@@ -71,23 +71,23 @@
         (= (med_unit_inventory_of day_hospital aspirin) 0)
         (= (med_unit_inventory_of day_hospital scalpel) 0)
         (= (med_unit_inventory_of day_hospital tongue_depressor) 0)
-        
+
         (= (med_unit_inventory_of neuro_surgery aspirin) 0)
         (= (med_unit_inventory_of neuro_surgery scalpel) 0)
         (= (med_unit_inventory_of neuro_surgery tongue_depressor) 0)
-        
+
         (= (med_unit_inventory_of radiology aspirin) 0)
         (= (med_unit_inventory_of radiology scalpel) 0)
         (= (med_unit_inventory_of radiology tongue_depressor) 0)
-        
+
         (= (med_unit_inventory_of cardiology aspirin) 0)
         (= (med_unit_inventory_of cardiology scalpel) 0)
         (= (med_unit_inventory_of cardiology tongue_depressor) 0)
-        
+
         (= (med_unit_inventory_of dentistry aspirin) 0)
         (= (med_unit_inventory_of dentistry scalpel) 0)
         (= (med_unit_inventory_of dentistry tongue_depressor) 0)
-        
+
         ;; Box contents
         (contains box1 aspirin)
         (contains box2 aspirin)
@@ -105,42 +105,42 @@
         (=(distance central_warehouse sector_a) 41)
         (connected sector_a central_warehouse)
         (=(distance sector_a central_warehouse) 41)
-        
+
         (connected sector_a sector_b)
         (=(distance sector_a sector_b) 68)
         (connected sector_b sector_a);68m
         (=(distance sector_b sector_a) 68)
-        
+
         (connected sector_b sector_c)
         (=(distance sector_b sector_c) 79)
         (connected sector_c sector_b);79m
         (=(distance sector_c sector_b) 79)
-        
+
         (connected day_hospital sector_c)
         (=(distance day_hospital sector_c) 10)
         (connected sector_c day_hospital)
         (=(distance sector_c day_hospital) 10)
-        
+
         (connected entrance sector_c)
         (=(distance entrance sector_c) 27)
         (connected sector_c entrance);27m
         (=(distance sector_c entrance) 27)
-        
+
         (connected sector_c heliport_alpha)
         (=(distance sector_c heliport_alpha) 25)
         (connected heliport_alpha sector_c);25m
         (=(distance heliport_alpha sector_c) 25)
-        
+
         (connected neuro_surgery sector_b)
         (=(distance neuro_surgery sector_b) 10)
         (connected sector_b neuro_surgery)
         (=(distance sector_b neuro_surgery) 10)
-        
+
         (connected heliport_alpha neuro_surgery)
         (=(distance heliport_alpha neuro_surgery) 10)
         (connected neuro_surgery heliport_alpha)
         (=(distance neuro_surgery heliport_alpha) 10)
-        
+
         (connected radiology sector_b)
         (=(distance radiology sector_b) 10)
         (connected sector_b radiology)
@@ -149,7 +149,7 @@
         (=(distance radiology heliport_alpha) 10)
         (connected heliport_alpha radiology)
         (=(distance heliport_alpha radiology) 10)
-        
+
         (connected cardiology sector_a)
         (=(distance cardiology sector_a) 10)
         (connected sector_a cardiology)
@@ -158,23 +158,53 @@
         (=(distance dentistry sector_a) 10)
         (connected sector_a dentistry)
         (=(distance sector_a dentistry) 10)
-        
+
         ; Drone port available
         (has_drone_port heliport_alpha);129m
         (has_drone_port central_warehouse)
         (=(arial_distance heliport_alpha central_warehouse) 129)
         (=(arial_distance central_warehouse heliport_alpha) 129)
-        
+
     )
     (:goal
         (and
             ;(robot_at accompany_robot1 sector_a)
-            (= 3 (med_unit_inventory_of day_hospital aspirin))
-            (= 1 (med_unit_inventory_of cardiology tongue_depressor))
-            (= 2 (med_unit_inventory_of dentistry aspirin))
-            (= 2 (med_unit_inventory_of dentistry tongue_depressor))
-            (= 2 (med_unit_inventory_of neuro_surgery scalpel))
-            ;(carrier_load carrier3 box10)
+            ;(= 3 (med_unit_inventory_of day_hospital aspirin))
+            ;(= (med_unit_inventory_of day_hospital scalpel) 0)
+            ;(= (med_unit_inventory_of day_hospital tongue_depressor) 0)
+;
+            ;(= 1 (med_unit_inventory_of cardiology tongue_depressor))
+            ;(= (med_unit_inventory_of cardiology aspirin) 0)
+            ;(= (med_unit_inventory_of cardiology scalpel) 0)
+;
+            ;(= (med_unit_inventory_of radiology aspirin) 0)
+            ;(= (med_unit_inventory_of radiology scalpel) 0)
+            ;(= (med_unit_inventory_of radiology tongue_depressor) 0)
+;
+            ;(= 2 (med_unit_inventory_of dentistry aspirin))
+            ;(= 2 (med_unit_inventory_of dentistry tongue_depressor))
+            ;(= (med_unit_inventory_of dentistry scalpel) 0)
+
+            (= (med_unit_inventory_of day_hospital aspirin) 0)
+            (= (med_unit_inventory_of day_hospital scalpel) 0)
+            (= (med_unit_inventory_of day_hospital tongue_depressor) 0)
+
+            (= (med_unit_inventory_of cardiology tongue_depressor)0 )
+            (= (med_unit_inventory_of cardiology aspirin) 0)
+            (= (med_unit_inventory_of cardiology scalpel) 0)
+
+            (= (med_unit_inventory_of radiology aspirin) 0)
+            (= (med_unit_inventory_of radiology scalpel) 0)
+            (= (med_unit_inventory_of radiology tongue_depressor) 0)
+
+            (= (med_unit_inventory_of dentistry aspirin) 0)
+            (= (med_unit_inventory_of dentistry tongue_depressor) 0)
+            (= (med_unit_inventory_of dentistry scalpel) 0)
+
+            (= 0 (med_unit_inventory_of neuro_surgery scalpel))
+            (= (med_unit_inventory_of neuro_surgery tongue_depressor) 0)
+            (= (med_unit_inventory_of neuro_surgery aspirin) 0)
+
             (patient_at rocco cardiology)
             (patient_at ciro day_hospital)
         )

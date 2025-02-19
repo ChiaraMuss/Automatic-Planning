@@ -11,22 +11,27 @@
     carrier1 carrier2 carrier3 carrier4 - carrier
     rocco ciro - patient
     cardiology dentistry radiology neuro_surgery day_hospital - medical_unit
+    capacity0 capacity1 capacity2 capacity3 capacity4 capacity5 capacity6 capacity7 - capacity-number
   )
 
   ;; **Task principale da risolvere**
   (:htn
     :tasks (and
       ;; **Task per la consegna dei rifornimenti**
-      (deliver-supply scalpel rocco cardiology box1 delivery_robot1 entrance carrier1)
-      (deliver-supply tongue_depressor ciro neuro_surgery box2 delivery_robot2 sector_a carrier2)
+      ;(deliver-supply scalpel cardiology box1 delivery_robot1 entrance carrier1)
+      ;(deliver-supply tongue_depressor neuro_surgery box2 delivery_robot2 sector_a carrier2)
+      (move delivery_robot1 entrance sector_a)
       
       ;; **Task per il trasporto del paziente**
-      (deliver-patient accompany_robot1 cardiology rocco)
-      (deliver-patient accompany_robot1 neuro_surgery ciro)
+      ;(deliver-patient accompany_robot1 cardiology rocco)
+      ;(deliver-patient accompany_robot1 neuro_surgery ciro)
     )
   )
 
   (:init
+    (capacity-predecessor capacity1 capacity2) (capacity-predecessor capacity2 capacity3)
+    (capacity-predecessor capacity3 capacity4) (capacity-predecessor capacity4 capacity5)
+    (capacity-predecessor capacity5 capacity6) (capacity-predecessor capacity6 capacity7)
     ;; **Connessioni tra le location**
     (connected entrance sector_a) (connected sector_a entrance)
     (connected sector_a sector_b) (connected sector_b sector_a)
@@ -40,10 +45,10 @@
     (patient_at ciro sector_c)
 
     ;; **Capacità dei carrier**
-    (capacity carrier1 1)
-    (capacity carrier2 2)
-    (capacity carrier3 2)
-    (capacity carrier4 1)
+    (capacity carrier1 capacity1)
+    (capacity carrier2 capacity2)
+    (capacity carrier3 capacity2)
+    (capacity carrier4 capacity1)
 
     ;; **Stato iniziale dei robot**
     (robot_at delivery_robot1 entrance)

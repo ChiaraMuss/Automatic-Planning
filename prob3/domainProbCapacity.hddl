@@ -1,7 +1,7 @@
 (define (domain healthcare3)
 
   ;; Requirements
-  (:requirements :typing :hierarchy :negative-preconditions :strips :action-costs)
+  (:requirements :typing :negative-preconditions :strips :action-costs)
 
   ;; Types
   (:types
@@ -55,7 +55,7 @@
     :parameters (?r - robot ?b - box ?s - content ?l - location))
 
   (:task move 
-    :parameters (?r - robot ?from - location ?to - location))
+    :parameters (?r - robot ?to - location))
 
   (:task deliver-patient 
     :parameters (?ar - accompany_robot ?m - medical_unit ?p - patient))
