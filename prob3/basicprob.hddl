@@ -1,33 +1,52 @@
 (define (problem healthcare-problem)
   (:domain healthcare3)
+
   (:objects
+    ;; Locations
     central_warehouse heliport_alpha - inventory
     entrance sector_a sector_b sector_c cardiology - location
+    dentistry radiology neuro_surgery day_hospital - medical_unit
+
+    ;; Medical contents
     scalpel tongue_depressor aspirin - content
+
+    ;; Boxes
     box1 box2 box3 box4 box5 box6 box7 box8 box9 box10 - box
+
+    ;; Robots
     delivery_robot1 delivery_robot2 - delivery_robot
     accompany_robot1 - accompany_robot
     drone1 drone2 - drone
+
+    ;; Carriers
     carrier1 carrier2 carrier3 carrier4 - carrier
+
+    ;; Patients
     rocco ciro - patient
-    dentistry radiology neuro_surgery day_hospital - medical_unit
+
+    ;; Capacity levels
     capacity0 capacity1 capacity2 capacity3 capacity4 capacity5 capacity6 capacity7 - capacity-number
   )
 
   (:htn
-  :tasks (and
-    (deliver-supply scalpel cardiology box1 delivery_robot1 entrance carrier1)
+    :tasks (and
+      ;; Deliver scalpel to cardiology
+      (deliver-supply scalpel cardiology box1 delivery_robot1 entrance carrier1 capacity2 capacity1)
+      ;; Deliver aspirin to cardiology
+      (deliver-supply aspirin cardiology box2 delivery_robot1 entrance carrier2 capacity3 capacity2)
+      ;; Deliver tongue_depressor to cardiology
+      (deliver-supply tongue_depressor cardiology box3 delivery_robot2 entrance carrier3 capacity4 capacity3)
+    )
   )
 
-
-
   (:init
-    ;; Capacità e precedenze
-    (has_capacity carrier1 capacity1)
+    ;; Capacity settings for carriers
+    (has_capacity carrier1 capacity2)
     (has_capacity carrier2 capacity3)
     (has_capacity carrier3 capacity4)
     (has_capacity carrier4 capacity5)
-    
+
+    ;; Capacity predecessor relationships
     (capacity-predecessor capacity0 capacity1)
     (capacity-predecessor capacity1 capacity2)
     (capacity-predecessor capacity2 capacity3)
@@ -36,24 +55,31 @@
     (capacity-predecessor capacity5 capacity6)
     (capacity-predecessor capacity6 capacity7)
 
-    ;; Connessioni tra le location
-    (connected entrance sector_a) (connected sector_a entrance)
-    (connected sector_a sector_b) (connected sector_b sector_a)
-    (connected sector_b sector_c) (connected sector_c sector_b)
-    (connected sector_c entrance) (connected entrance sector_c)
-    (connected entrance cardiology) (connected cardiology entrance)
-    (connected sector_c cardiology) (connected cardiology sector_c)
+    ;; Location connections
+    (connected entrance cardiology)
+    (connected cardiology entrance)
 
-    ;; Stato delle scatole
+    ;; Box states
     (at_box box1 entrance)
     (contains box1 scalpel)
     (full box1)
+    (at_box box2 entrance)
+    (contains box2 aspirin)
+    (full box2)
+    (at_box box3 entrance)
+    (contains box3 tongue_depressor)
+    (full box3)
 
-    ;; Stato iniziale dei robot
+    ;; Robot initial states
     (robot_at delivery_robot1 entrance)
+    (robot_at delivery_robot2 entrance)
     (robot_has_carrier delivery_robot1 carrier1)
+    (robot_has_carrier delivery_robot2 carrier3)
     (carrier_at carrier1 entrance)
+    (carrier_at carrier2 entrance)
+    (carrier_at carrier3 entrance)
     (free delivery_robot1)
+    (free delivery_robot2)
   )
 )
 
