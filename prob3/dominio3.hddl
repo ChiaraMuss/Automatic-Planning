@@ -38,6 +38,7 @@
     (capacity ?c - carrier ?cap - capacity-number)
     (capacity-predecessor ?s1 - capacity-number ?s2 - capacity-number)
     (has_capacity ?c - carrier ?cap - capacity-number)
+    (has_patient_capacity ?ar - accompany_robot ?cap - capacity-number)
   )
   
   ;; **TASK HTN**
@@ -97,7 +98,9 @@
 
   (:action move-aerial
     :parameters (?r - aerial_robot ?from - location ?to - location)
-    :precondition (robot_at ?r ?from)
+    :precondition (and
+      (robot_at ?r ?from)
+      (connected ?from ?to))
     :effect (and
       (not (robot_at ?r ?from))
       (robot_at ?r ?to))
@@ -128,32 +131,37 @@
       (full ?b))
     :effect (and
       (not (loaded ?r ?b))
+      (not (full ?b))
       (empty ?b))
   )
 
   (:action pick-up-patient
-    :parameters (?ar - accompany_robot ?p - patient ?l - location)
+    :parameters (?ar - accompany_robot ?p - patient ?l - location ?cap - capacity-number ?new_cap - capacity-number)
     :precondition (and
       (robot_at ?ar ?l)
       (patient_at ?p ?l)
-      (free_to_accompany ?ar))
+      (free_to_accompany ?ar)
+      (has_patient_capacity ?ar ?cap)
+      (capacity-predecessor ?cap ?new_cap))
     :effect (and
       (not (patient_at ?p ?l))
       (accompanying_pat ?p ?ar)
-      (not (free_to_accompany ?ar)))
+      (not (free_to_accompany ?ar))
+      (not (has_patient_capacity ?ar ?cap))
+      (has_patient_capacity ?ar ?new_cap))
   )
 
   (:action drop-off-patient
-    :parameters (?ar - accompany_robot ?p - patient ?m - medical_unit)
+    :parameters (?ar - accompany_robot ?p - patient ?m - medical_unit ?cap - capacity-number ?new_cap - capacity-number)
     :precondition (and
       (robot_at ?ar ?m)
-      (accompanying_pat ?p ?ar))
+      (accompanying_pat ?p ?ar)
+      (capacity-predecessor ?new_cap ?cap))
     :effect (and
       (not (accompanying_pat ?p ?ar))
       (patient_at ?p ?m)
-      (free_to_accompany ?ar))
+      (free_to_accompany ?ar)
+      (not (has_patient_capacity ?ar ?new_cap))
+      (has_patient_capacity ?ar ?cap))
   )
 )
-
-
-
