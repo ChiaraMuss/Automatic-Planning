@@ -21,23 +21,26 @@
 
   ;; Predicates
   (:predicates
+    ;Robot Movement
     (robot_at ?r - robot ?l - location)
-    ;(contains ?b - box ?c - content)
-    ;(carrier_load ?c - carrier ?b - box)
-    ;(carrier_at ?c - carrier ?l - location)
-    ;(robot_has_carrier ?r - robot ?c - carrier)
     (connected ?l1 - location ?l2 - location)
     (has_drone_port ?l - location)
-    ;(at_box ?b - box ?l - location)
+
+    ;Patients
     (free_to_accompany ?r - accompany_robot)
     (accompanying_pat ?p - patient ?ar - accompany_robot)
     (patient_at ?p - patient ?l - location)
-    ;(empty ?b - box)
-    ;(full ?b - box ?c - content)
-    ;(loaded ?r - robot ?b - box)
-    ;(free ?r - robot)
-    ;(capacity ?c - carrier ?cap - capacity-number)
-    ;(capacity-predecessor ?s1 - capacity-number ?s2 - capacity-number)
+
+    ;Supply Management
+    (contains ?b - box ?c - content)
+    (carrier_load ?c - carrier ?b - box)
+    (robot_has_carrier ?r - robot ?c - carrier)
+    (at_box ?b - box ?l - location)
+    (empty ?b - box)
+    (full ?b - box ?c - content)
+    (loaded ?r - robot ?b - box)
+    (carrier_capacity ?c - carrier ?cap - capacity-number)
+    (capacity-predecessor ?s1 - capacity-number ?s2 - capacity-number)
   )
 
   ;; **TASK HTN**
@@ -49,19 +52,20 @@
   (:task get-to
     :parameters (?r - robot ?to - location)
   )
-  ;(:task load-supply
-  ;  :parameters (?r - robot ?b - box ?l - location ?c - carrier)
-  ;)
-  ;
-  ;(:task unload-supply
-  ;  :parameters (?r - robot ?b - box ?s - content ?l - location)
-  ;)
 
   (:task deliver-patient
     :parameters (?p - patient ?m - medical_unit)
   )
 
-  ;;----------------- Movement 
+  (:task load_box_to_carrier ;;The object can be loaded only at inventory locations thanks to method definitions
+    :parameters(?b - box ?c - carrier)
+  )
+
+  ;(:task unload_box_to_location ;;The object can be loaded only at inventory locations thanks to preconditions
+  ;  :parameters(?b - box ?c - carrier)
+  ;)
+
+  ;;----------------- Movement Methods
 
   (:method m-move-flying
     :parameters (?r - aerial_robot ?l2 ?l3 - location)
@@ -91,7 +95,7 @@
     (and
       (noop ?r ?l))
   )
-  ;;---------  Patient Delivery
+  ;;---------  Patient Delivery methods
 
   (:method m-deliver-patient
     :parameters (?r - accompany_robot ?p - patient ?l1 ?l2 - location)
@@ -104,6 +108,17 @@
       (deliver_patient_at_med_bay ?r ?p ?l2)
     )
   )
+
+  ;;-------- Delivery supply methods
+  (:method m-load_to_carrier
+    :parameters(?r - robot ?c - carrier ?l - inventory ?b - box ?n1 ?n2 - capacity-number)
+    :task(load_box_to_carrier ?b ?c )
+    :subtasks
+    (load_up_carrier ?r ?c ?l ?b ?n1 ?n2)
+  )
+
+  ;;############################## ACTIONS
+  ;;----------------- Movement Actions
 
   (:action move_terrestrial
     :parameters (?v - terrestrial_robot ?l1 ?l2 - location)
@@ -132,16 +147,16 @@
     :precondition (robot_at ?v ?l2)
     :effect ()
   )
-  ;;---------  Patient Delivery
+  ;;---------  Patient Delivery Actions
 
   (:action take_patient
     :parameters (?r - accompany_robot ?p - patient ?l - location)
-    :precondition (and 
+    :precondition (and
       (free_to_accompany ?r)
       (patient_at ?p ?l)
       (robot_at ?r ?l)
-      )
-    :effect (and 
+    )
+    :effect (and
       (not (patient_at ?p ?l))
       (not (free_to_accompany ?r))
       (accompanying_pat ?p ?r)
@@ -150,13 +165,31 @@
 
   (:action deliver_patient_at_med_bay
     :parameters (?ar - accompany_robot ?p - patient ?m - medical_unit)
-    :precondition (and 
+    :precondition (and
       (robot_at ?ar ?m)
       (accompanying_pat ?p ?ar))
-    :effect (and 
+    :effect (and
       (not (accompanying_pat ?p ?ar))
       (free_to_accompany ?ar)
       (patient_at ?p ?m))
+  )
+  ;;-------- Delivery supply actions
+
+  (:action load_up_carrier
+    :parameters (?r - robot ?c - carrier ?l - location ?b - box ?n1 ?n2 - capacity-number)
+    :precondition (and
+      (robot_at ?r ?l)
+      (robot_has_carrier ?r ?c)
+      (at_box ?b ?l)
+      (capacity-predecessor ?n1 ?n2)
+      (carrier_capacity ?c ?n2)
+    )
+    :effect (and
+      (not (at_box ?b ?l))
+      (not (carrier_capacity ?c ?n2))
+      (carrier_load ?c ?b)
+      (carrier_capacity ?c ?n1)
+    )
   )
 
   ;; **METODI HTN**
