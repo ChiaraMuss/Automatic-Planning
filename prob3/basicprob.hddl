@@ -11,7 +11,7 @@
     scalpel tongue_depressor aspirin - content
 
     ;; Boxes
-    box1 box2 box3 box4 box5 box6 box7 box8 box9 box10 - box
+    box1 box2 box3 - box
 
     ;; Robots
     delivery_robot1 delivery_robot2 - delivery_robot
@@ -19,13 +19,13 @@
     drone1 drone2 - drone
 
     ;; Carriers
-    carrier1 carrier2 carrier3 carrier4 - carrier
+    carrier1 carrier2 carrier3 - carrier
 
     ;; Patients
     rocco ciro - patient
 
     ;; Capacity levels
-    capacity0 capacity1 capacity2 capacity3 capacity4 capacity5 capacity6 capacity7 - capacity-number
+    capacity0 capacity1 capacity2 capacity3 - capacity-number
   )
 
   (:htn
@@ -35,7 +35,7 @@
       ;; Deliver aspirin to cardiology
       (deliver-supply aspirin cardiology box2 delivery_robot1 entrance carrier2 capacity3 capacity2)
       ;; Deliver tongue_depressor to cardiology
-      (deliver-supply tongue_depressor cardiology box3 delivery_robot2 entrance carrier3 capacity4 capacity3)
+      (deliver-supply tongue_depressor cardiology box3 delivery_robot2 entrance carrier3 capacity3 capacity2)
     )
   )
 
@@ -43,21 +43,20 @@
     ;; Capacity settings for carriers
     (has_capacity carrier1 capacity2)
     (has_capacity carrier2 capacity3)
-    (has_capacity carrier3 capacity4)
-    (has_capacity carrier4 capacity5)
+    (has_capacity carrier3 capacity3)
 
     ;; Capacity predecessor relationships
     (capacity-predecessor capacity0 capacity1)
     (capacity-predecessor capacity1 capacity2)
     (capacity-predecessor capacity2 capacity3)
-    (capacity-predecessor capacity3 capacity4)
-    (capacity-predecessor capacity4 capacity5)
-    (capacity-predecessor capacity5 capacity6)
-    (capacity-predecessor capacity6 capacity7)
 
     ;; Location connections
     (connected entrance cardiology)
     (connected cardiology entrance)
+    (connected entrance sector_a)
+    (connected sector_a sector_b)
+    (connected sector_b sector_c)
+    (connected sector_c cardiology)
 
     ;; Box states
     (at_box box1 entrance)
@@ -81,6 +80,5 @@
     (free delivery_robot1)
     (free delivery_robot2)
   )
+
 )
-
-
