@@ -72,7 +72,7 @@
   )
 
   (:method m-move-flying
-    :parameters (?r - robot ?l2 ?l3 - location)
+    :parameters (?r - aerial_robot ?l2 ?l3 - location)
     :task
     (get-to ?r ?l3)
     :ordered-subtasks
@@ -82,7 +82,7 @@
   )
 
   (:method m-move-terrain
-    :parameters (?r - robot ?l2 ?l3 - location)
+    :parameters (?r - terrestrial_robot ?l2 ?l3 - location)
     :task
     (get-to ?r ?l3)
     :ordered-subtasks

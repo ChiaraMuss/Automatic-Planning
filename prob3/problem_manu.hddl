@@ -9,7 +9,7 @@
     box1 box2 box3 box4 box5 box6 box7 box8 box9 box10 - box
     delivery_robot1 delivery_robot2 - delivery_robot
 
-    accompany_robot1 - accompany_robot
+    accompany_robot1 accompany_robot2 - accompany_robot
     drone1 drone2 - drone
     carrier1 carrier2 carrier3 carrier4 - carrier
     rocco ciro - patient
@@ -19,9 +19,12 @@
   (:htn
     :tasks
     (and
-      (get-to delivery_robot1 entrance)
+      ;(get-to delivery_robot1 entrance)
+      ;(get-to delivery_robot2 entrance)
       (get-to drone1 heliport_alpha)
-      (deliver-patient rocco neuro_surgery)
+      ;(deliver-patient rocco neuro_surgery)
+      ;(deliver-patient ciro radiology)
+
     )
     :ordering
     ()
@@ -33,10 +36,12 @@
     (robot_at delivery_robot1 central_warehouse)
     (robot_at delivery_robot2 central_warehouse)
     (robot_at accompany_robot1 entrance)
+    ;(robot_at accompany_robot2 entrance)
+
     (robot_at drone1 central_warehouse)
     (robot_at drone2 central_warehouse)
     (patient_at rocco entrance)
-    ;(patient_at ciro entrance)
+    (patient_at ciro entrance)
 
     ;; Accompanying robot status
     (free_to_accompany accompany_robot1)
