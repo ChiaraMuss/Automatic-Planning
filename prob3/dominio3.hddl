@@ -1,8 +1,8 @@
 (define (domain healthcare3)
-  
+
   ;; Requirements
-  (:requirements :typing :negative-preconditions :strips :action-costs)
-  
+  (:requirements :strips :typing :negative-preconditions :equality :hierarchy)
+
   ;; Types
   (:types
     location inventory - object
@@ -18,7 +18,7 @@
     patient - object
     capacity-number - object
   )
-  
+
   ;; Predicates
   (:predicates
     (robot_at ?r - robot ?l - location)
@@ -40,49 +40,64 @@
     (has_capacity ?c - carrier ?cap - capacity-number)
     (has_patient_capacity ?ar - accompany_robot ?cap - capacity-number)
   )
-  
-  ;; **TASK HTN**
+
+  ;; **TASKS**
   (:task deliver-supply 
-    :parameters (?s - content ?m - medical_unit ?b - box ?r - robot ?from - location ?c - carrier))
-
-  (:task move-terrestrial 
-    :parameters (?r - terrestrial_robot ?to - location))
-
-  (:task move-aerial 
-    :parameters (?r - aerial_robot ?to - location))
+    :parameters (?s - content ?m - medical_unit ?b - box ?r - robot ?from - location ?c - carrier ?cap - capacity-number ?new_cap - capacity-number)
+    :precondition ()
+    :effect (and (loaded ?r ?b) (robot_at ?r ?m))
+  )
 
   (:task deliver-patient 
-    :parameters (?ar - accompany_robot ?m - medical_unit ?p - patient))
+    :parameters (?ar - accompany_robot ?m - medical_unit ?p - patient)
+    :precondition ()
+    :effect (and (accompanying_pat ?p ?ar) (robot_at ?ar ?m))
+  )
 
-  ;; **METODI HTN**
+  ;; **METHODS**
   (:method m-deliver-supply-terrestrial
-    :parameters (?r - terrestrial_robot ?b - box ?s - content ?from - location ?m - medical_unit ?c - carrier)
-    :task (deliver-supply ?s ?m ?b ?r ?from ?c)
-    :ordered-subtasks (and
-      (move-terrestrial ?r ?from ?m)
-      (load-box ?r ?b ?s ?from ?c)
-      (unload-box ?r ?b ?s ?m))
+    :parameters (?r - terrestrial_robot ?b - box ?s - content ?from - location ?m - medical_unit ?c - carrier ?cap - capacity-number ?new_cap - capacity-number)
+    :task (deliver-supply ?s ?m ?b ?r ?from ?c ?cap ?new_cap)
+    :subtasks (and
+      (task0 (load-box ?r ?b ?s ?from ?c ?cap ?new_cap))
+      (task1 (move-terrestrial ?r ?from ?m))
+      (task2 (unload-box ?r ?b ?s ?m))
+    )
+    :ordering (and
+      (task0 < task1)
+      (task1 < task2)
+    )
   )
 
   (:method m-deliver-supply-aerial
-    :parameters (?r - aerial_robot ?b - box ?s - content ?from - location ?m - medical_unit ?c - carrier)
-    :task (deliver-supply ?s ?m ?b ?r ?from ?c)
-    :ordered-subtasks (and
-      (move-aerial ?r ?from ?m)
-      (load-box ?r ?b ?s ?from ?c)
-      (unload-box ?r ?b ?s ?m))
+    :parameters (?r - aerial_robot ?b - box ?s - content ?from - location ?m - medical_unit ?c - carrier ?cap - capacity-number ?new_cap - capacity-number)
+    :task (deliver-supply ?s ?m ?b ?r ?from ?c ?cap ?new_cap)
+    :subtasks (and
+      (task0 (load-box ?r ?b ?s ?from ?c ?cap ?new_cap))
+      (task1 (move-aerial ?r ?from ?m))
+      (task2 (unload-box ?r ?b ?s ?m))
+    )
+    :ordering (and
+      (task0 < task1)
+      (task1 < task2)
+    )
   )
 
   (:method m-deliver-patient
     :parameters (?ar - accompany_robot ?p - patient ?from - location ?m - medical_unit)
     :task (deliver-patient ?ar ?m ?p)
-    :ordered-subtasks (and
-      (move-terrestrial ?ar ?from ?m)
-      (pick-up-patient ?ar ?p ?from)
-      (drop-off-patient ?ar ?p ?m))
+    :subtasks (and
+      (task0 (pick-up-patient ?ar ?p ?from))
+      (task1 (move-terrestrial ?ar ?from ?m))
+      (task2 (drop-off-patient ?ar ?p ?m))
+    )
+    :ordering (and
+      (task0 < task1)
+      (task1 < task2)
+    )
   )
 
-  ;; **AZIONI PRIMITIVE**
+  ;; **ACTIONS**
   (:action move-terrestrial
     :parameters (?r - terrestrial_robot ?from - location ?to - location)
     :precondition (and
@@ -112,13 +127,15 @@
       (contains ?b ?s)
       (robot_has_carrier ?r ?c)
       (has_capacity ?c ?cap)
-      (capacity-predecessor ?cap ?new_cap))
+      (capacity-predecessor ?cap ?new_cap)
+      (free ?r))
     :effect (and
       (carrier_load ?c ?b)
       (loaded ?r ?b)
       (full ?b)
       (not (has_capacity ?c ?cap))
-      (has_capacity ?c ?new_cap))
+      (has_capacity ?c ?new_cap)
+      (not (free ?r)))
   )
 
   (:action unload-box
@@ -130,17 +147,19 @@
     :effect (and
       (not (loaded ?r ?b))
       (not (full ?b))
-      (empty ?b))
+      (empty ?b)
+      (free ?r))
   )
 
+  ;; Gestione del paziente
   (:action pick-up-patient
-    :parameters (?ar - accompany_robot ?p - patient ?l - location)
+    :parameters (?ar - accompany_robot ?p - patient ?from - location)
     :precondition (and
-      (robot_at ?ar ?l)
-      (patient_at ?p ?l)
+      (robot_at ?ar ?from)
+      (patient_at ?p ?from)
       (free_to_accompany ?ar))
     :effect (and
-      (not (patient_at ?p ?l))
+      (not (patient_at ?p ?from))
       (accompanying_pat ?p ?ar)
       (not (free_to_accompany ?ar)))
   )
@@ -155,5 +174,6 @@
       (patient_at ?p ?m)
       (free_to_accompany ?ar))
   )
+
 )
 
