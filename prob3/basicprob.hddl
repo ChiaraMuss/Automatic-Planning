@@ -16,13 +16,21 @@
 
   (:htn
     :tasks (and
-      (deliver-supply scalpel cardiology box1 delivery_robot1 entrance carrier1)
+      (move-terrestrial delivery_robot1 entrance)
+      (load-box delivery_robot1 box1 scalpel entrance carrier1 capacity2 capacity1)
+      (move-terrestrial delivery_robot1 cardiology)
+      (unload-box delivery_robot1 box1 scalpel cardiology)
     )
   )
 
   (:init
-    (has_capacity carrier1 capacity2)
-    (capacity carrier1 capacity2)
+    ;; Capacità e precedenze
+    (has_capacity carrier1 capacity1)
+    (has_capacity carrier2 capacity3)
+    (has_capacity carrier3 capacity4)
+    (has_capacity carrier4 capacity5)
+    
+    (capacity-predecessor capacity0 capacity1)
     (capacity-predecessor capacity1 capacity2)
     (capacity-predecessor capacity2 capacity3)
     (capacity-predecessor capacity3 capacity4)
@@ -30,19 +38,25 @@
     (capacity-predecessor capacity5 capacity6)
     (capacity-predecessor capacity6 capacity7)
 
+    ;; Connessioni tra le location
     (connected entrance sector_a) (connected sector_a entrance)
     (connected sector_a sector_b) (connected sector_b sector_a)
     (connected sector_b sector_c) (connected sector_c sector_b)
     (connected sector_c entrance) (connected entrance sector_c)
     (connected entrance cardiology) (connected cardiology entrance)
+    (connected sector_c cardiology) (connected cardiology sector_c)
 
+    ;; Stato delle scatole
     (at_box box1 entrance)
     (contains box1 scalpel)
     (full box1)
 
+    ;; Stato iniziale dei robot
     (robot_at delivery_robot1 entrance)
     (robot_has_carrier delivery_robot1 carrier1)
     (carrier_at carrier1 entrance)
     (free delivery_robot1)
   )
 )
+
+
