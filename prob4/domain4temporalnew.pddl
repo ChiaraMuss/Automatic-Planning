@@ -71,26 +71,17 @@
     :parameters (?r - delivery_robot ?b - box ?c - carrier ?l - inventory)
     :duration (= ?duration loading_time)
     :condition (and
-      (at start (and
-          (robot_has_carrier ?r ?c)
-          (< (carrier_used ?c) (carrier_capacity ?c))
-        )
-      )
-      (over all
-        (and
-          (robot_at ?r ?l)
-          (at_box ?b ?l)
-        )
+      (at start
+        (robot_has_carrier ?r ?c))
+      (at start (< (carrier_used ?c) (carrier_capacity ?c)))
+      (over all (robot_at ?r ?l))
+      (over all (at_box ?b ?l)
       )
     )
     :effect (and
       (at start (increase (carrier_used ?c) 1))
-      (at end (and
-          (not (at_box ?b ?l))
-          (carrier_load ?c ?b)
-          )
-
-      )
+      (at end (carrier_load ?c ?b))
+      (at end (not (at_box ?b ?l)))
     )
   )
 
@@ -98,40 +89,34 @@
     :parameters (?r - delivery_robot ?b - box ?c - carrier ?l - location)
     :duration (= ?duration 1)
     :condition (and
-      (at start (and
-          (carrier_load ?c ?b)
-          (robot_has_carrier ?r ?c)
-        ))
-      (over all (and
-          (robot_at ?r ?l) (robot_has_carrier ?r ?c)
-        ))
+      (at start (carrier_load ?c ?b))
+      (over all
+        (robot_at ?r ?l))
+      (over all (robot_has_carrier ?r ?c))
 
     )
     :effect (and
       (at start (not (carrier_load ?c ?b)))
       (at end (and
-          (at_box ?b ?l)
-          (decrease (carrier_used ?c) 1)
-        ))
+          (decrease (carrier_used ?c) 1)))
+      (at end (at_box ?b ?l))
     )
   )
   (:durative-action unload_content
-  :parameters (?r - delivery_robot ?b - box ?m - medical_unit ?c - content)
-  :duration (= ?duration content_unload_time)
-  :condition (and
-    (at start (contains ?b ?c)) ; Ensure the box contains the specific content
-    (over all (and
-      (robot_at ?r ?m)           ; The robot must be at the correct medical unit
-      (at_box ?b ?m)             ; The box must be at the medical unit
-      (>= (med_unit_inventory_of ?m ?c) 0) ; Ensure the unit needs more of the content
-    ))
-  )
-  :effect (and
-    (at start (not (contains ?b ?c)))   ; Remove content from the box
-    (at end (increase (med_unit_inventory_of ?m ?c) 1)) ; Add content to the medical unit's inventory
-  )
-)
+    :parameters (?r - delivery_robot ?b - box ?m - medical_unit ?c - content)
+    :duration (= ?duration content_unload_time)
+    :condition (and
+      (at start (contains ?b ?c)) ; Ensure the box contains the specific content
 
+      (over all (robot_at ?r ?m))
+      (over all (at_box ?b ?m))
+      (over all (>= (med_unit_inventory_of ?m ?c) 0))
+    )
+    :effect (and
+      (at start (not (contains ?b ?c))) ; Remove content from the box
+      (at end (increase (med_unit_inventory_of ?m ?c) 1)) ; Add content to the medical unit's inventory
+    )
+  )
 
   ;;------------------------------------------------ DRONE CAPABILITIES
 
@@ -139,19 +124,17 @@
     :parameters (?d - drone ?b - box ?c - carrier ?l - location)
     :duration (= ?duration loading_time)
     :condition (and
-      (over all (and
-          (robot_at ?d ?l)
-          (robot_has_carrier ?d ?c)
-          (at_box ?b ?l)
-          (< (carrier_used ?c) (carrier_capacity ?c))
-        ))
+      (over all (robot_at ?d ?l))
+      (over all (robot_has_carrier ?d ?c))
+      (over all (at_box ?b ?l))
+      (over all (< (carrier_used ?c) (carrier_capacity ?c)))
+
     )
     :effect (and
-      (at end (and
-          (not (at_box ?b ?l))
-          (carrier_load ?c ?b)
-          (increase (carrier_used ?c) 1)
-        ))
+      (at end (not (at_box ?b ?l)))
+      (at end (carrier_load ?c ?b))
+      (at end (increase (carrier_used ?c) 1))
+
     )
   )
 
@@ -159,18 +142,15 @@
     :parameters (?d - drone ?c - carrier ?b - box ?l - location)
     :duration (= ?duration unloading_time)
     :condition (and
-      (over all (and
-          (robot_at ?d ?l)
-          (robot_has_carrier ?d ?c)
-          (carrier_load ?c ?b)
-        ))
+      (over all
+        (robot_at ?d ?l)
+      )
+      (over all (robot_has_carrier ?d ?c))
+      (over all (carrier_load ?c ?b))
     )
     :effect (and
-      (at start (and
-        ))
-      (at end (and
-          (at_box ?b ?l)
-          (not (carrier_load ?c ?b))))
+      (at end (not (carrier_load ?c ?b)))
+      (at end (at_box ?b ?l))
     )
   )
 
@@ -178,24 +158,22 @@
     :parameters (?d - drone ?c - carrier ?from - location ?to - location)
     :duration (= ?duration (/ (arial_distance ?from ?to) (speed ?d)))
     :condition (and
-      (at start (and
-          (robot_at ?d ?from)
-        ))
-      (over all (and
-          (robot_has_carrier ?d ?c) (has_drone_port ?from) (has_drone_port ?to)
-        ))
+      (at start
+        (robot_at ?d ?from)
+      )
+      (over all (robot_has_carrier ?d ?c))
+      (over all (has_drone_port ?from))
+      (over all (has_drone_port ?to))
     )
     :effect (and
-      (at start (and
-          (not (robot_at ?d ?from))
-        ))
-      (at end (and
-          (robot_at ?d ?to)
-        ))
+      (at start
+        (not (robot_at ?d ?from))
+      )
+      (at end
+        (robot_at ?d ?to)
+      )
     )
   )
-
-  
 
   ;;---------------------------------------------- PATIENTS MANAGEMENT
   ;; Patient transfer 
@@ -214,7 +192,6 @@
     )
   )
 
-  
   (:durative-action deliver_patient
     :parameters (?ar - accompany_robot ?m - medical_unit ?p - patient)
     :duration (= ?duration expected_patient_interaction_time)

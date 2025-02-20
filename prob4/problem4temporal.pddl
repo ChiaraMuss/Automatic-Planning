@@ -169,27 +169,11 @@
     (:goal
         (and
             ;(robot_at accompany_robot1 sector_a)
-            ;(= 3 (med_unit_inventory_of day_hospital aspirin))
-            ;(= (med_unit_inventory_of day_hospital scalpel) 0)
-            ;(= (med_unit_inventory_of day_hospital tongue_depressor) 0)
-;
-            ;(= 1 (med_unit_inventory_of cardiology tongue_depressor))
-            ;(= (med_unit_inventory_of cardiology aspirin) 0)
-            ;(= (med_unit_inventory_of cardiology scalpel) 0)
-;
-            ;(= (med_unit_inventory_of radiology aspirin) 0)
-            ;(= (med_unit_inventory_of radiology scalpel) 0)
-            ;(= (med_unit_inventory_of radiology tongue_depressor) 0)
-;
-            ;(= 2 (med_unit_inventory_of dentistry aspirin))
-            ;(= 2 (med_unit_inventory_of dentistry tongue_depressor))
-            ;(= (med_unit_inventory_of dentistry scalpel) 0)
-
-            (= (med_unit_inventory_of day_hospital aspirin) 0)
+            (= 3 (med_unit_inventory_of day_hospital aspirin))
             (= (med_unit_inventory_of day_hospital scalpel) 0)
             (= (med_unit_inventory_of day_hospital tongue_depressor) 0)
 
-            (= (med_unit_inventory_of cardiology tongue_depressor)0 )
+            (= 1 (med_unit_inventory_of cardiology tongue_depressor))
             (= (med_unit_inventory_of cardiology aspirin) 0)
             (= (med_unit_inventory_of cardiology scalpel) 0)
 
@@ -197,13 +181,33 @@
             (= (med_unit_inventory_of radiology scalpel) 0)
             (= (med_unit_inventory_of radiology tongue_depressor) 0)
 
-            (= (med_unit_inventory_of dentistry aspirin) 0)
-            (= (med_unit_inventory_of dentistry tongue_depressor) 0)
+            (= 2 (med_unit_inventory_of dentistry aspirin))
+            (= 2 (med_unit_inventory_of dentistry tongue_depressor))
             (= (med_unit_inventory_of dentistry scalpel) 0)
-
-            (= 0 (med_unit_inventory_of neuro_surgery scalpel))
+            
+            (= 2 (med_unit_inventory_of neuro_surgery scalpel))
             (= (med_unit_inventory_of neuro_surgery tongue_depressor) 0)
             (= (med_unit_inventory_of neuro_surgery aspirin) 0)
+
+            ;(= (med_unit_inventory_of day_hospital aspirin) 0)
+            ;(= (med_unit_inventory_of day_hospital scalpel) 0)
+            ;(= (med_unit_inventory_of day_hospital tongue_depressor) 0)
+;
+            ;(= (med_unit_inventory_of cardiology tongue_depressor)0 )
+            ;(= (med_unit_inventory_of cardiology aspirin) 0)
+            ;(= (med_unit_inventory_of cardiology scalpel) 0)
+;
+            ;(= (med_unit_inventory_of radiology aspirin) 0)
+            ;(= (med_unit_inventory_of radiology scalpel) 0)
+            ;(= (med_unit_inventory_of radiology tongue_depressor) 0)
+;
+            ;(= (med_unit_inventory_of dentistry aspirin) 0)
+            ;(= (med_unit_inventory_of dentistry tongue_depressor) 0)
+            ;(= (med_unit_inventory_of dentistry scalpel) 0)
+;
+            ;(= 0 (med_unit_inventory_of neuro_surgery scalpel))
+            ;(= (med_unit_inventory_of neuro_surgery tongue_depressor) 0)
+            ;(= (med_unit_inventory_of neuro_surgery aspirin) 0)
 
             (patient_at rocco cardiology)
             (patient_at ciro day_hospital)
