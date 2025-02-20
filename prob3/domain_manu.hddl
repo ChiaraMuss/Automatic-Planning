@@ -29,9 +29,9 @@
     (connected ?l1 - location ?l2 - location)
     (has_drone_port ?l - location)
     ;(at_box ?b - box ?l - location)
-    ;(free_to_accompany ?r - accompany_robot)
-    ;(accompanying_pat ?p - patient ?ar - accompany_robot)
-    ;(patient_at ?p - patient ?l - location)
+    (free_to_accompany ?r - accompany_robot)
+    (accompanying_pat ?p - patient ?ar - accompany_robot)
+    (patient_at ?p - patient ?l - location)
     ;(empty ?b - box)
     ;(full ?b - box ?c - content)
     ;(loaded ?r - robot ?b - box)
@@ -52,17 +52,16 @@
   ;(:task load-supply
   ;  :parameters (?r - robot ?b - box ?l - location ?c - carrier)
   ;)
-;
+  ;
   ;(:task unload-supply
   ;  :parameters (?r - robot ?b - box ?s - content ?l - location)
   ;)
 
-  ;(:task deliver-patient
-  ;  :parameters (?m - medical_unit ?p - patient)
-  ;)
+  (:task deliver-patient
+    :parameters (?p - patient ?m - medical_unit)
+  )
 
-
-;;------------------------------ Movement 
+  ;;----------------- Movement 
   (:method m-robot-to
     :parameters (?r - robot ?l1 ?l2 - location)
     :task
@@ -100,6 +99,19 @@
     (and
       (noop ?r ?l))
   )
+  ;;---------  Patient Delivery
+
+  (:method m-deliver-patient
+    :parameters (?r - accompany_robot ?p - patient ?l1 ?l2 - location)
+    :task
+    (deliver-patient ?p ?l2)
+    :ordered-subtasks(and
+      (get-to ?r ?l1)
+      (take_patient ?r ?p ?l1)
+      (get-to ?r ?l2)
+      (deliver_patient_at_med_bay ?r ?p ?l2)
+    )
+  )
 
   (:action move_terrestrial
     :parameters (?v - terrestrial_robot ?l1 ?l2 - location)
@@ -117,7 +129,7 @@
       (robot_at ?v ?l1)
       (has_drone_port ?l1)
       (has_drone_port ?l2)
-      )
+    )
     :effect (and
       (not (robot_at ?v ?l1))
       (robot_at ?v ?l2))
@@ -127,6 +139,32 @@
     :parameters (?v - robot ?l2 - location)
     :precondition (robot_at ?v ?l2)
     :effect ()
+  )
+  ;;---------  Patient Delivery
+
+  (:action take_patient
+    :parameters (?r - accompany_robot ?p - patient ?l - location)
+    :precondition (and 
+      (free_to_accompany ?r)
+      (patient_at ?p ?l)
+      (robot_at ?r ?l)
+      )
+    :effect (and 
+      (not (patient_at ?p ?l))
+      (not (free_to_accompany ?r))
+      (accompanying_pat ?p ?r)
+    )
+  )
+
+  (:action deliver_patient_at_med_bay
+    :parameters (?ar - accompany_robot ?p - patient ?m - medical_unit)
+    :precondition (and 
+      (robot_at ?ar ?m)
+      (accompanying_pat ?p ?ar))
+    :effect (and 
+      (not (accompanying_pat ?p ?ar))
+      (free_to_accompany ?ar)
+      (patient_at ?p ?m))
   )
 
   ;; **METODI HTN**
@@ -142,7 +180,7 @@
   ;    (move-robot ?r ?from ?to)
   ;    (unload-box ?r ?b ?s ?to))
   ;)
-;
+  ;
   ;(:method m-deliver-patient
   ;  :parameters (?ar - accompany_robot ?p - patient ?from - location ?m - medical_unit)
   ;  :task
@@ -156,7 +194,6 @@
   ;)
 
   ;; **AZIONI PRIMITIVE**
-
 
   ;(:action move-robot
   ;  :parameters (?r - robot ?from - location ?to - location)
@@ -181,7 +218,7 @@
   ;    (carrier_load ?c ?b)
   ;    (loaded ?r ?b))
   ;)
-;
+  ;
   ;(:action unload-box
   ;  :parameters (?r - robot ?b - box ?s - content ?l - location)
   ;  :precondition (and
@@ -191,7 +228,7 @@
   ;    (empty ?b)
   ;    (not (full ?b ?s)))
   ;)
-;
+  ;
   ;(:action pick-up-patient
   ;  :parameters (?ar - accompany_robot ?p - patient ?l - location)
   ;  :precondition (and
@@ -202,7 +239,7 @@
   ;    (not (patient_at ?p ?l))
   ;    (accompanying_pat ?p ?ar))
   ;)
-;
+  ;
   ;(:action drop-off-patient
   ;  :parameters (?ar - accompany_robot ?p - patient ?m - medical_unit)
   ;  :precondition (and

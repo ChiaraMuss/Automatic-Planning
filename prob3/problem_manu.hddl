@@ -21,6 +21,7 @@
     (and
       (get-to delivery_robot1 entrance)
       (get-to drone1 heliport_alpha)
+      (deliver-patient rocco neuro_surgery)
     )
     :ordering
     ()
@@ -34,11 +35,11 @@
     (robot_at accompany_robot1 entrance)
     (robot_at drone1 central_warehouse)
     (robot_at drone2 central_warehouse)
-    ;(patient_at rocco entrance)
+    (patient_at rocco entrance)
     ;(patient_at ciro entrance)
 
     ;; Accompanying robot status
-    ;(free_to_accompany accompany_robot1)
+    (free_to_accompany accompany_robot1)
 
     ; Initial positions of boxes
     ;(at_box box1 central_warehouse)
