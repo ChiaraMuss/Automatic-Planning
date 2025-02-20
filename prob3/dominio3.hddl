@@ -8,7 +8,7 @@
     location inventory - object
     medical_unit - location
     content - object
-    scissor band_aid syringes - content
+    scissor band_aid syringes scalpel tongue_depressor aspirin - content
     robot - object
     terrestrial_robot aerial_robot - robot
     delivery_robot accompany_robot - terrestrial_robot
@@ -56,12 +56,11 @@
 
   ;; **METODI HTN**
   (:method m-deliver-supply-terrestrial
-    :parameters (?r - terrestrial_robot ?b - box ?s - content ?from - location ?to - location ?m - medical_unit ?c - carrier)
+    :parameters (?r - terrestrial_robot ?b - box ?s - content ?from - location ?m - medical_unit ?c - carrier)
     :task (deliver-supply ?s ?m ?b ?r ?from ?c)
     :ordered-subtasks (and
-      (move-terrestrial ?r ?to)
+      (move-terrestrial ?r ?from ?m)
       (load-box ?r ?b ?s ?from ?c)
-      (move-terrestrial ?r ?m)
       (unload-box ?r ?b ?s ?m))
   )
 
@@ -69,7 +68,7 @@
     :parameters (?r - aerial_robot ?b - box ?s - content ?from - location ?m - medical_unit ?c - carrier)
     :task (deliver-supply ?s ?m ?b ?r ?from ?c)
     :ordered-subtasks (and
-      (move-aerial ?r ?m)
+      (move-aerial ?r ?from ?m)
       (load-box ?r ?b ?s ?from ?c)
       (unload-box ?r ?b ?s ?m))
   )
@@ -78,9 +77,8 @@
     :parameters (?ar - accompany_robot ?p - patient ?from - location ?m - medical_unit)
     :task (deliver-patient ?ar ?m ?p)
     :ordered-subtasks (and
-      (move-terrestrial ?ar ?from)
+      (move-terrestrial ?ar ?from ?m)
       (pick-up-patient ?ar ?p ?from)
-      (move-terrestrial ?ar ?m)
       (drop-off-patient ?ar ?p ?m))
   )
 
@@ -136,32 +134,26 @@
   )
 
   (:action pick-up-patient
-    :parameters (?ar - accompany_robot ?p - patient ?l - location ?cap - capacity-number ?new_cap - capacity-number)
+    :parameters (?ar - accompany_robot ?p - patient ?l - location)
     :precondition (and
       (robot_at ?ar ?l)
       (patient_at ?p ?l)
-      (free_to_accompany ?ar)
-      (has_patient_capacity ?ar ?cap)
-      (capacity-predecessor ?cap ?new_cap))
+      (free_to_accompany ?ar))
     :effect (and
       (not (patient_at ?p ?l))
       (accompanying_pat ?p ?ar)
-      (not (free_to_accompany ?ar))
-      (not (has_patient_capacity ?ar ?cap))
-      (has_patient_capacity ?ar ?new_cap))
+      (not (free_to_accompany ?ar)))
   )
 
   (:action drop-off-patient
-    :parameters (?ar - accompany_robot ?p - patient ?m - medical_unit ?cap - capacity-number ?new_cap - capacity-number)
+    :parameters (?ar - accompany_robot ?p - patient ?m - medical_unit)
     :precondition (and
       (robot_at ?ar ?m)
-      (accompanying_pat ?p ?ar)
-      (capacity-predecessor ?new_cap ?cap))
+      (accompanying_pat ?p ?ar))
     :effect (and
       (not (accompanying_pat ?p ?ar))
       (patient_at ?p ?m)
-      (free_to_accompany ?ar)
-      (not (has_patient_capacity ?ar ?new_cap))
-      (has_patient_capacity ?ar ?cap))
+      (free_to_accompany ?ar))
   )
 )
+
