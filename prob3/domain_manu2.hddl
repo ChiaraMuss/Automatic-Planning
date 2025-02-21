@@ -61,9 +61,9 @@
     :parameters(?b - box ?c - carrier)
   )
 
-  ;(:task unload_box_to_location ;;The object can be loaded only at inventory locations thanks to preconditions
-  ;  :parameters(?b - box ?c - carrier)
-  ;)
+  (:task unload_box_to_location ;;The object can be loaded only at inventory locations thanks to preconditions
+    :parameters(?b - box ?l - location)
+  )
 
   ;;----------------- Movement Methods
 
@@ -115,6 +115,13 @@
     :task(load_box_to_carrier ?b ?c )
     :subtasks
     (load_up_carrier ?r ?c ?l ?b ?n1 ?n2)
+  )
+
+  (:method m-unload_box_to_location
+    :parameters(?r - robot ?c - carrier ?l - location ?b - box ?n1 ?n2 - capacity-number)
+    :task(unload_box_to_location ?b ?l)
+    :subtasks
+    (unload_to_location ?r ?c ?l ?b ?n1 ?n2)
   )
 
   ;;############################## ACTIONS
