@@ -66,6 +66,10 @@
     :parameters(?b - box ?l - location)
   )
 
+  ;(:task empty_box
+  ;  :parameters(?b - box ?c - content ?m - medical_unit)
+  ;)
+;
   ;;----------------- Movement Methods
 
   (:method m-move-flying
@@ -127,6 +131,11 @@
     (unload_from_delivery_carrier ?r ?c ?l ?b ?n1 ?n2)
   )
 
+  ;(:method m-unload_content
+  ;  :parameters(?r - delivery_robot ?c - carrier ?b - box ?n1 ?n2 - capacity-number)
+  ;  :
+  ;)
+
   ;Drone 
 
   (:method m-load_to_drone_carrier
@@ -140,8 +149,10 @@
     :parameters(?r - drone ?c - carrier ?l - location ?b - box ?n1 ?n2 - capacity-number)
     :task(unload_box_to_location ?b ?l)
     :subtasks
-    (unload_from_drone ?r ?c ?l ?b ?n1 ?n2)
+    (unload_from_drone_carrier ?r ?c ?l ?b ?n1 ?n2)
   )
+  
+  
 
   ;;############################## ACTIONS
   ;;----------------- Movement Actions
@@ -202,7 +213,7 @@
   ;;-------- Delivery supply actions
   ;Delivery_robot
   (:action load_up_delivery_carrier
-    :parameters (?r - robot ?c - carrier ?l - location ?b - box ?n1 ?n2 - capacity-number)
+    :parameters (?r - delivery_robot ?c - carrier ?l - location ?b - box ?n1 ?n2 - capacity-number)
     :precondition (and
       (robot_at ?r ?l)
       (robot_has_carrier ?r ?c)
@@ -236,7 +247,7 @@
   )
   ;Drone 
 
-  (:action load_to_drone_carrier
+  (:action load_up_drone_carrier
     :parameters (?r - drone ?c - carrier ?l - location ?b - box ?n1 ?n2 - capacity-number)
     :precondition (and
       (robot_at ?r ?l)
@@ -253,7 +264,22 @@
     )
   )
 
-
+  (:action unload_from_drone_carrier
+    :parameters (?r - drone ?c - carrier ?l - location ?b - box ?n1 ?n2 - capacity-number)
+    :precondition (and
+      (robot_at ?r ?l)
+      (robot_has_carrier ?r ?c)
+      (carrier_load ?c ?b)
+      (capacity-predecessor ?n1 ?n2)
+      (carrier_capacity ?c ?n1)
+    )
+    :effect (and
+      (not (carrier_load ?c ?b))
+      (not (carrier_capacity ?c ?n1))
+      (at_box ?b ?l)
+      (carrier_capacity ?c ?n2)
+    )
+  )
 
   ;; **METODI HTN**
 

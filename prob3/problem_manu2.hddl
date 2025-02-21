@@ -31,7 +31,7 @@
 
       ;(load_box_to_carrier box1 carrier1)
       ;(load_box_to_carrier box2 carrier1)
-      (load_box_to_carrier box3 carrier3)
+      ;(load_box_to_carrier box3 carrier3)
       ;(unload_box_to_location box10 central_warehouse)
     )
     :ordering
