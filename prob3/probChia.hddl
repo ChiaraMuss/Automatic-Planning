@@ -19,14 +19,17 @@
   (:htn
     :tasks
     (and
-      ;(load_any_box_to_carrier delivery_robot1 carrier1 central_warehouse box1)
-      ;(unload_box_to_location box1 cardiology)
-      ;(load_any_box_to_carrier delivery_robot2 carrier2 central_warehouse box2)
-      ;(unload_box_to_location box2 neuro_surgery)
+      (get-to delivery_robot1 cardiology)
+      (load_any_box_to_carrier delivery_robot1 carrier1 central_warehouse box1)
+      (unload_box_to_location delivery_robot1 box1 cardiology)
+      (get-to delivery_robot2 neuro_surgery)
+      (load_any_box_to_carrier delivery_robot2 carrier2 central_warehouse box2)
+      (unload_box_to_location delivery_robot2 box2 neuro_surgery)
+      ;(get-to drone1 radiology)
       ;(load_any_box_to_carrier drone1 carrier3 central_warehouse box3)
-      ;(unload_box_to_location box3 radiology)
-      (deliver-patient rocco cardiology)
-      (deliver-patient ciro neuro_surgery)
+      ;(unload_box_to_location drone1 box3 radiology)
+      ;(deliver-patient rocco cardiology)
+      ;(deliver-patient ciro neuro_surgery)
     )
     :ordering
     ()
@@ -46,7 +49,7 @@
     (robot_at delivery_robot1 central_warehouse)
     (robot_at delivery_robot2 central_warehouse)
     (robot_at accompany_robot1 entrance)
-    ;(robot_at accompany_robot2 entrance)
+    (robot_at accompany_robot2 entrance)
 
     (robot_at drone1 central_warehouse)
     (robot_at drone2 central_warehouse)
@@ -55,6 +58,7 @@
 
     ;; Accompanying robot status
     (free_to_accompany accompany_robot1)
+    (free_to_accompany accompany_robot2)
 
     ; Initial positions of boxes
     (at_box box1 central_warehouse)
