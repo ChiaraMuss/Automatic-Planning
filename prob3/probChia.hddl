@@ -25,11 +25,11 @@
       (get-to delivery_robot2 neuro_surgery)
       (load_any_box_to_carrier delivery_robot2 carrier2 central_warehouse box2)
       (unload_box_to_location delivery_robot2 box2 neuro_surgery)
-      ;(get-to drone1 radiology)
-      ;(load_any_box_to_carrier drone1 carrier3 central_warehouse box3)
-      ;(unload_box_to_location drone1 box3 radiology)
-      ;(deliver-patient rocco cardiology)
-      ;(deliver-patient ciro neuro_surgery)
+      (get-to drone1 radiology)
+      (load_any_box_to_carrier drone1 carrier3 central_warehouse box3)
+      (unload_box_to_location drone1 box3 radiology)
+      (deliver-patient rocco cardiology)
+      (deliver-patient ciro neuro_surgery)
     )
     :ordering
     ()
@@ -131,5 +131,9 @@
     ; Drone port available
     (has_drone_port heliport_alpha)
     (has_drone_port central_warehouse)
+    (has_drone_port radiology)
+    (has_drone_port cardiology)
+    (has_drone_port neuro_surgery)
+
   )
 )
