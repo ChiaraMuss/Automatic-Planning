@@ -41,6 +41,7 @@
     (loaded ?r - robot ?b - box)
     (carrier_capacity ?c - carrier ?cap - capacity-number)
     (capacity-predecessor ?s1 - capacity-number ?s2 - capacity-number)
+    
   )
 
   ;; **TASK HTN**
@@ -110,18 +111,36 @@
   )
 
   ;;-------- Delivery supply methods
-  (:method m-load_to_carrier
+  ; The 2 types of method are used to avoid errors even if robots that have carriers can do these actions
+  ;Delivery_robot
+  (:method m-load_to_delivery_carrier
     :parameters(?r - robot ?c - carrier ?l - inventory ?b - box ?n1 ?n2 - capacity-number)
-    :task(load_box_to_carrier ?b ?c )
+    :task(load_box_to_carrier ?b ?c)
     :subtasks
-    (load_up_carrier ?r ?c ?l ?b ?n1 ?n2)
+    (load_up_delivery_carrier ?r ?c ?l ?b ?n1 ?n2)
   )
 
-  (:method m-unload_box_to_location
-    :parameters(?r - robot ?c - carrier ?l - location ?b - box ?n1 ?n2 - capacity-number)
+  (:method m-unload_box_from_delivery_carrier
+    :parameters(?r - delivery_robot ?c - carrier ?l - location ?b - box ?n1 ?n2 - capacity-number)
     :task(unload_box_to_location ?b ?l)
     :subtasks
-    (unload_to_location ?r ?c ?l ?b ?n1 ?n2)
+    (unload_from_delivery_carrier ?r ?c ?l ?b ?n1 ?n2)
+  )
+
+  ;Drone 
+
+  (:method m-load_to_drone_carrier
+    :parameters(?r - drone ?c - carrier ?l - inventory ?b - box ?n1 ?n2 - capacity-number)
+    :task(load_box_to_carrier ?b ?c)
+    :subtasks
+    ( load_up_drone_carrier ?r ?c ?l ?b ?n1 ?n2)
+  )
+
+  (:method m-unload_box_from_drone_carrier
+    :parameters(?r - drone ?c - carrier ?l - location ?b - box ?n1 ?n2 - capacity-number)
+    :task(unload_box_to_location ?b ?l)
+    :subtasks
+    (unload_from_drone ?r ?c ?l ?b ?n1 ?n2)
   )
 
   ;;############################## ACTIONS
@@ -181,8 +200,8 @@
       (patient_at ?p ?m))
   )
   ;;-------- Delivery supply actions
-
-  (:action load_up_carrier
+  ;Delivery_robot
+  (:action load_up_delivery_carrier
     :parameters (?r - robot ?c - carrier ?l - location ?b - box ?n1 ?n2 - capacity-number)
     :precondition (and
       (robot_at ?r ?l)
@@ -198,6 +217,43 @@
       (carrier_capacity ?c ?n1)
     )
   )
+
+  (:action unload_from_delivery_carrier
+    :parameters (?r - delivery_robot ?c - carrier ?l - location ?b - box ?n1 ?n2 - capacity-number)
+    :precondition (and
+      (robot_at ?r ?l)
+      (robot_has_carrier ?r ?c)
+      (carrier_load ?c ?b)
+      (capacity-predecessor ?n1 ?n2)
+      (carrier_capacity ?c ?n1)
+    )
+    :effect (and
+      (not (carrier_load ?c ?b))
+      (not (carrier_capacity ?c ?n1))
+      (at_box ?b ?l)
+      (carrier_capacity ?c ?n2)
+    )
+  )
+  ;Drone 
+
+  (:action load_to_drone_carrier
+    :parameters (?r - drone ?c - carrier ?l - location ?b - box ?n1 ?n2 - capacity-number)
+    :precondition (and
+      (robot_at ?r ?l)
+      (robot_has_carrier ?r ?c)
+      (at_box ?b ?l)
+      (capacity-predecessor ?n1 ?n2)
+      (carrier_capacity ?c ?n2)
+    )
+    :effect (and
+      (not (at_box ?b ?l))
+      (not (carrier_capacity ?c ?n2))
+      (carrier_load ?c ?b)
+      (carrier_capacity ?c ?n1)
+    )
+  )
+
+
 
   ;; **METODI HTN**
 

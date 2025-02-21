@@ -20,14 +20,19 @@
   (:htn
     :tasks
     (and
+
+      ;(deliver-patient rocco neuro_surgery)
+      ;(deliver-patient ciro radiology)
+
+      ; test tasks
       ;(get-to delivery_robot1 entrance)
       ;(get-to delivery_robot2 entrance)
       ;(get-to drone1 heliport_alpha)
-      ;(deliver-patient rocco neuro_surgery)
-      ;(deliver-patient ciro radiology)
-      (load_box_to_carrier box1 carrier1)
-      (load_box_to_carrier box2 carrier1)
-      (load_box_to_carrier box3 carrier1)
+
+      ;(load_box_to_carrier box1 carrier1)
+      ;(load_box_to_carrier box2 carrier1)
+      (load_box_to_carrier box3 carrier3)
+      ;(unload_box_to_location box10 central_warehouse)
     )
     :ordering
     ()
@@ -68,7 +73,9 @@
     (at_box box7 central_warehouse)
     (at_box box8 central_warehouse)
     (at_box box9 central_warehouse)
-    (at_box box10 central_warehouse)
+    ;(at_box box10 central_warehouse)
+
+    (carrier_load carrier3 box10)
 
     ; Initial carrier positions and assignments
     (robot_has_carrier delivery_robot1 carrier1)
