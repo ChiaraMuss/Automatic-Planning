@@ -36,12 +36,11 @@
     (carrier_load ?c - carrier ?b - box)
     (robot_has_carrier ?r - robot ?c - carrier)
     (at_box ?b - box ?l - location)
-    (empty ?b - box)
-    (full ?b - box ?c - content)
-    (loaded ?r - robot ?b - box)
+    (empty_box ?b - box)
     (carrier_capacity ?c - carrier ?cap - capacity-number)
     (capacity-predecessor ?s1 - capacity-number ?s2 - capacity-number)
-    
+    (med_unit_inventory_of ?m - medical_unit ?c - content ?n - capacity-number)
+
   )
 
   ;; **TASK HTN**
@@ -58,18 +57,30 @@
     :parameters (?p - patient ?m - medical_unit)
   )
 
-  (:task load_box_to_carrier ;;The object can be loaded only at inventory locations thanks to method definitions
-    :parameters(?b - box ?c - carrier)
+  (:task load_content_box_to_carrier ;;The object can be loaded only at inventory locations thanks to method definitions
+    :parameters(?b - box ?c - content ?l - inventory ?ca - carrier)
   )
 
-  (:task unload_box_to_location ;;The object can be loaded only at inventory locations thanks to preconditions
-    :parameters(?b - box ?l - location)
+  (:task unload_content_box_to_location ;;The object can be loaded only at inventory locations thanks to preconditions in the methods
+    :parameters(?b - box ?c - content ?l - location)
   )
 
-  ;(:task empty_box
-  ;  :parameters(?b - box ?c - content ?m - medical_unit)
-  ;)
-;
+  (:task empty_box_in_med_unit
+    :parameters(?b - box ?c - content ?m - medical_unit)
+  )
+
+  (:task deliver_content_amount
+    :parameters(?c - content ?m - medical_unit ?ca - capacity-number)
+  )
+
+  (:task go_pickup
+    :parameters(?r - delivery_robot ?ca - carrier ?b - box ?c - content ?l - location)
+    :precondition(and (robot_has_carrier ?r ?ca))
+  )
+  (:task go_deliver
+    :parameters(?c - content ?m - medical_unit ?ca - capacity-number)
+  )
+  ;
   ;;----------------- Movement Methods
 
   (:method m-move-flying
@@ -115,44 +126,62 @@
   )
 
   ;;-------- Delivery supply methods
+
+  (:method m-go_pickup
+    :parameters(?r - robot ?ca - carrier ?b - box ?co - content  ?l - location)
+    :task(go_pickup ?r ?ca ?b ?co ?l)
+    :ordered-subtasks(and
+      (get-to ?r ?l)
+      (load_content_box_to_carrier ?b ?co ?l ?ca)
+    )
+  )
+  
+  ;(:method m-deliver_content_amount
+  ;  :parameters(?c - content ?m - medical_unit ?ca - capacity-number)
+  ;  :task(deliver_content_amount(?c ?m ?ca))
+  ;  :ordered-subtasks(and
+  ;    go_pickup(?c)
+  ;    go_deliver(?c ?m ?ca)
+  ;  )
+  ;)
+  ;
   ; The 2 types of method are used to avoid errors even if robots that have carriers can do these actions
   ;Delivery_robot
   (:method m-load_to_delivery_carrier
-    :parameters(?r - robot ?c - carrier ?l - inventory ?b - box ?n1 ?n2 - capacity-number)
-    :task(load_box_to_carrier ?b ?c)
+    :parameters(?r - delivery_robot ?c - carrier ?l - inventory ?b - box ?co - content ?n1 ?n2 - capacity-number)
+    :task(load_content_box_to_carrier ?b ?co ?l ?c)
     :subtasks
-    (load_up_delivery_carrier ?r ?c ?l ?b ?n1 ?n2)
+    (load_up_delivery_carrier ?r ?c ?l ?b ?co ?n1 ?n2)
   )
-
-  (:method m-unload_box_from_delivery_carrier
-    :parameters(?r - delivery_robot ?c - carrier ?l - location ?b - box ?n1 ?n2 - capacity-number)
-    :task(unload_box_to_location ?b ?l)
-    :subtasks
-    (unload_from_delivery_carrier ?r ?c ?l ?b ?n1 ?n2)
-  )
-
-  ;(:method m-unload_content
-  ;  :parameters(?r - delivery_robot ?c - carrier ?b - box ?n1 ?n2 - capacity-number)
-  ;  :
+  ;
+  ;(:method m-unload_box_from_delivery_carrier
+  ;  :parameters(?r - delivery_robot ?c - carrier ?l - location ?b - box ?co - content ?n1 ?n2 - capacity-number)
+  ;  :task(unload_content_box_to_location ?b ?co ?l)
+  ;  :subtasks
+  ;  (unload_from_delivery_carrier ?r ?c ?l ?b ?co ?n1 ?n2)
   ;)
-
+  ;
+  ;(:method m-unload_content
+  ;  :parameters(?r - delivery_robot ?b - box ?c - content ?m - medical_unit ?n1 ?n2 - capacity-number)
+  ;  :task(empty_box_in_med_unit ?b ?c ?m)
+  ;  :subtasks(unload_content ?r ?b ?c ?m ?n1 ?n2)
+  ;)
+  ;
   ;Drone 
 
-  (:method m-load_to_drone_carrier
-    :parameters(?r - drone ?c - carrier ?l - inventory ?b - box ?n1 ?n2 - capacity-number)
-    :task(load_box_to_carrier ?b ?c)
-    :subtasks
-    ( load_up_drone_carrier ?r ?c ?l ?b ?n1 ?n2)
-  )
-
-  (:method m-unload_box_from_drone_carrier
-    :parameters(?r - drone ?c - carrier ?l - location ?b - box ?n1 ?n2 - capacity-number)
-    :task(unload_box_to_location ?b ?l)
-    :subtasks
-    (unload_from_drone_carrier ?r ?c ?l ?b ?n1 ?n2)
-  )
-  
-  
+  ;(:method m-load_to_drone_carrier
+  ;  :parameters(?r - drone ?c - carrier ?l - inventory ?b - box ?co - content ?n1 ?n2 - capacity-number)
+  ;  :task(load_content_box_to_carrier ?b ?co ?l ?c)
+  ;  :subtasks
+  ;  ( load_up_drone_carrier ?r ?c ?l ?b ?co ?n1 ?n2)
+  ;)
+  ;
+  ;(:method m-unload_box_from_drone_carrier
+  ;  :parameters(?r - drone ?c - carrier ?l - location ?b - box ?n1 ?n2 - capacity-number)
+  ;  :task(unload_content_box_to_location ?b ?co ?l)
+  ;  :subtasks
+  ;  (unload_from_drone_carrier ?r ?c ?l ?b ?co ?n1 ?n2)
+  ;)
 
   ;;############################## ACTIONS
   ;;----------------- Movement Actions
@@ -186,182 +215,121 @@
   )
   ;;---------  Patient Delivery Actions
 
-  (:action take_patient
-    :parameters (?r - accompany_robot ?p - patient ?l - location)
-    :precondition (and
-      (free_to_accompany ?r)
-      (patient_at ?p ?l)
-      (robot_at ?r ?l)
-    )
-    :effect (and
-      (not (patient_at ?p ?l))
-      (not (free_to_accompany ?r))
-      (accompanying_pat ?p ?r)
-    )
-  )
-
-  (:action deliver_patient_at_med_bay
-    :parameters (?ar - accompany_robot ?p - patient ?m - medical_unit)
-    :precondition (and
-      (robot_at ?ar ?m)
-      (accompanying_pat ?p ?ar))
-    :effect (and
-      (not (accompanying_pat ?p ?ar))
-      (free_to_accompany ?ar)
-      (patient_at ?p ?m))
-  )
-  ;;-------- Delivery supply actions
-  ;Delivery_robot
-  (:action load_up_delivery_carrier
-    :parameters (?r - delivery_robot ?c - carrier ?l - location ?b - box ?n1 ?n2 - capacity-number)
-    :precondition (and
-      (robot_at ?r ?l)
-      (robot_has_carrier ?r ?c)
-      (at_box ?b ?l)
-      (capacity-predecessor ?n1 ?n2)
-      (carrier_capacity ?c ?n2)
-    )
-    :effect (and
-      (not (at_box ?b ?l))
-      (not (carrier_capacity ?c ?n2))
-      (carrier_load ?c ?b)
-      (carrier_capacity ?c ?n1)
-    )
-  )
-
-  (:action unload_from_delivery_carrier
-    :parameters (?r - delivery_robot ?c - carrier ?l - location ?b - box ?n1 ?n2 - capacity-number)
-    :precondition (and
-      (robot_at ?r ?l)
-      (robot_has_carrier ?r ?c)
-      (carrier_load ?c ?b)
-      (capacity-predecessor ?n1 ?n2)
-      (carrier_capacity ?c ?n1)
-    )
-    :effect (and
-      (not (carrier_load ?c ?b))
-      (not (carrier_capacity ?c ?n1))
-      (at_box ?b ?l)
-      (carrier_capacity ?c ?n2)
-    )
-  )
-  ;Drone 
-
-  (:action load_up_drone_carrier
-    :parameters (?r - drone ?c - carrier ?l - location ?b - box ?n1 ?n2 - capacity-number)
-    :precondition (and
-      (robot_at ?r ?l)
-      (robot_has_carrier ?r ?c)
-      (at_box ?b ?l)
-      (capacity-predecessor ?n1 ?n2)
-      (carrier_capacity ?c ?n2)
-    )
-    :effect (and
-      (not (at_box ?b ?l))
-      (not (carrier_capacity ?c ?n2))
-      (carrier_load ?c ?b)
-      (carrier_capacity ?c ?n1)
-    )
-  )
-
-  (:action unload_from_drone_carrier
-    :parameters (?r - drone ?c - carrier ?l - location ?b - box ?n1 ?n2 - capacity-number)
-    :precondition (and
-      (robot_at ?r ?l)
-      (robot_has_carrier ?r ?c)
-      (carrier_load ?c ?b)
-      (capacity-predecessor ?n1 ?n2)
-      (carrier_capacity ?c ?n1)
-    )
-    :effect (and
-      (not (carrier_load ?c ?b))
-      (not (carrier_capacity ?c ?n1))
-      (at_box ?b ?l)
-      (carrier_capacity ?c ?n2)
-    )
-  )
-
-  ;; **METODI HTN**
-
-  ;(:method m-deliver-supply
-  ;  :parameters (?r - robot ?b - box ?s - content ?from ?to - location ?m - medical_unit ?c - carrier)
-  ;  :task
-  ;  (deliver-supply ?s ?m ?b ?r ?from ?c)
-  ;  :ordered-subtasks
-  ;  (and
-  ;    (move-robot ?r ?from ?to)
-  ;    (load-box ?r ?b ?s ?from ?c)
-  ;    (move-robot ?r ?from ?to)
-  ;    (unload-box ?r ?b ?s ?to))
-  ;)
-  ;
-  ;(:method m-deliver-patient
-  ;  :parameters (?ar - accompany_robot ?p - patient ?from - location ?m - medical_unit)
-  ;  :task
-  ;  (deliver-patient ?ar ?m ?p)
-  ;  :ordered-subtasks
-  ;  (and
-  ;    (move-robot ?ar ?from ?m)
-  ;    (pick-up-patient ?ar ?p ?from)
-  ;    (move-robot ?ar ?from ?m)
-  ;    (drop-off-patient ?ar ?p ?m))
-  ;)
-
-  ;; **AZIONI PRIMITIVE**
-
-  ;(:action move-robot
-  ;  :parameters (?r - robot ?from - location ?to - location)
+  ;(:action take_patient
+  ;  :parameters (?r - accompany_robot ?p - patient ?l - location)
   ;  :precondition (and
-  ;    (robot_at ?r ?from)
-  ;    (connected ?from ?to))
-  ;  :effect (and
-  ;    (not (robot_at ?r ?from))
-  ;    (robot_at ?r ?to))
-  ;)
-
-  ;(:action load-box
-  ;  :parameters (?r - robot ?b - box ?s - content ?l - location ?c - carrier)
-  ;  :precondition (and
-  ;    (robot_at ?r ?l)
-  ;    (at_box ?b ?l)
-  ;    (contains ?b ?s)
-  ;    (robot_has_carrier ?r ?c)
-  ;    (not (carrier_load ?c ?b)))
-  ;  :effect (and
-  ;    (full ?b ?s)
-  ;    (carrier_load ?c ?b)
-  ;    (loaded ?r ?b))
-  ;)
-  ;
-  ;(:action unload-box
-  ;  :parameters (?r - robot ?b - box ?s - content ?l - location)
-  ;  :precondition (and
-  ;    (robot_at ?r ?l)
-  ;    (full ?b ?s))
-  ;  :effect (and
-  ;    (empty ?b)
-  ;    (not (full ?b ?s)))
-  ;)
-  ;
-  ;(:action pick-up-patient
-  ;  :parameters (?ar - accompany_robot ?p - patient ?l - location)
-  ;  :precondition (and
-  ;    (robot_at ?ar ?l)
+  ;    (free_to_accompany ?r)
   ;    (patient_at ?p ?l)
-  ;    (free_to_accompany ?ar))
+  ;    (robot_at ?r ?l)
+  ;  )
   ;  :effect (and
   ;    (not (patient_at ?p ?l))
-  ;    (accompanying_pat ?p ?ar))
+  ;    (not (free_to_accompany ?r))
+  ;    (accompanying_pat ?p ?r)
+  ;  )
   ;)
   ;
-  ;(:action drop-off-patient
+  ;(:action deliver_patient_at_med_bay
   ;  :parameters (?ar - accompany_robot ?p - patient ?m - medical_unit)
   ;  :precondition (and
   ;    (robot_at ?ar ?m)
   ;    (accompanying_pat ?p ?ar))
   ;  :effect (and
   ;    (not (accompanying_pat ?p ?ar))
+  ;    (free_to_accompany ?ar)
   ;    (patient_at ?p ?m))
   ;)
+  ;;;-------- Delivery supply actions
+  ;;Delivery_robot
+  (:action load_up_delivery_carrier
+    :parameters (?r - delivery_robot ?c - carrier ?l - location ?b - box ?co - content ?n1 ?n2 - capacity-number)
+    :precondition (and
+      (robot_at ?r ?l)
+      (robot_has_carrier ?r ?c)
+      (at_box ?b ?l)
+      (contains ?b ?co)
+      (capacity-predecessor ?n1 ?n2)
+      (carrier_capacity ?c ?n2)
+    )
+    :effect (and
+      (not (at_box ?b ?l))
+      (not (carrier_capacity ?c ?n2))
+      (carrier_load ?c ?b)
+      (carrier_capacity ?c ?n1)
+    )
+  )
+  ;
+  ;(:action unload_from_delivery_carrier
+  ;  :parameters (?r - delivery_robot ?c - carrier ?l - location ?b - box ?co - content ?n1 ?n2 - capacity-number)
+  ;  :precondition (and
+  ;    (robot_at ?r ?l)
+  ;    (robot_has_carrier ?r ?c)
+  ;    (carrier_load ?c ?b)
+  ;    (contains ?b ?co)
+  ;
+  ;    (capacity-predecessor ?n1 ?n2)
+  ;    (carrier_capacity ?c ?n1)
+  ;  )
+  ;  :effect (and
+  ;    (not (carrier_load ?c ?b))
+  ;    (not (carrier_capacity ?c ?n1))
+  ;    (at_box ?b ?l)
+  ;    (carrier_capacity ?c ?n2)
+  ;  )
+  ;)
+  ;
+  ;(:action unload_content
+  ;  :parameters (?r - delivery_robot ?b - box ?c - content ?m - medical_unit ?n1 ?n2 - capacity-number)
+  ;  :precondition (and
+  ;    (robot_at ?r ?m)
+  ;    (at_box ?b ?m)
+  ;    (contains ?b ?c)
+  ;    (capacity-predecessor ?n1 ?n2)
+  ;    (med_unit_inventory_of ?m ?c ?n1)
+  ;  )
+  ;  :effect (and
+  ;    (not (contains ?b ?c))
+  ;    (not (med_unit_inventory_of ?m ?c ?n1))
+  ;    (empty_box ?b)
+  ;    (med_unit_inventory_of ?m ?c ?n2)
+  ;  )
+  ;)
 
+  ; ;Drone 
+  ;
+  ; (:action load_up_drone_carrier
+  ;   :parameters (?r - drone ?c - carrier ?l - location ?b - box ?co - content ?n1 ?n2 - capacity-number)
+  ;   :precondition (and
+  ;     (robot_at ?r ?l)
+  ;     (robot_has_carrier ?r ?c)
+  ;     (at_box ?b ?l)
+  ;     (contains ?b ?co)
+  ;     (capacity-predecessor ?n1 ?n2)
+  ;     (carrier_capacity ?c ?n2)
+  ;   )
+  ;   :effect (and
+  ;     (not (at_box ?b ?l))
+  ;     (not (carrier_capacity ?c ?n2))
+  ;     (carrier_load ?c ?b)
+  ;     (carrier_capacity ?c ?n1)
+  ;   )
+  ; )
+  ;
+  ; (:action unload_from_drone_carrier
+  ;   :parameters (?r - drone ?c - carrier ?l - location ?b - box ?co - content ?n1 ?n2 - capacity-number)
+  ;   :precondition (and
+  ;     (robot_at ?r ?l)
+  ;     (robot_has_carrier ?r ?c)
+  ;     (carrier_load ?c ?b)
+  ;     (contains ?b ?co)
+  ;     (capacity-predecessor ?n1 ?n2)
+  ;     (carrier_capacity ?c ?n1)
+  ;   )
+  ;   :effect (and
+  ;     (not (carrier_load ?c ?b))
+  ;     (not (carrier_capacity ?c ?n1))
+  ;     (at_box ?b ?l)
+  ;     (carrier_capacity ?c ?n2)
+  ;   )
+  ; )
 )
