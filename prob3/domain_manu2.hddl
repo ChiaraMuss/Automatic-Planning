@@ -71,7 +71,7 @@
   )
 
   (:task go_deliver
-    :parameters(?r - delivery_robot ?ca - carrier ?b - box ?c - content ?l - location)
+    :parameters(?r - delivery_robot ?ca - carrier ?b - box ?c - content ?l - location ?end_cap - capacity-number)
     :precondition(and (robot_has_carrier ?r ?ca))
   )
 
@@ -151,16 +151,32 @@
   ;  (unload_from_delivery_carrier ?r ?c ?l ?b ?co ?n1 ?n2)
   ;)
   (:method m-go_deliver
-    :parameters(?r - delivery_robot ?ca - carrier ?co - content ?b - box ?m - medical_unit ?ca1 ?ca2 ?n1 ?n2 - capacity-number)
-    :task(go_deliver ?r ?ca ?b ?co ?m)
+    :parameters(?r - delivery_robot ?ca - carrier ?co - content ?b - box ?m - medical_unit ?ca1 ?ca2 ?n1 ?end_cap - capacity-number)
+    :task(go_deliver ?r ?ca ?b ?co ?m ?end_cap)
     :ordered-subtasks(and
       (get-to ?r ?m)
       (unload_from_delivery_carrier ?r ?ca ?m ?b ?co ?ca1 ?ca2)
-      (a-empty_box_in_med_unit ?r ?b ?co ?m ?n1 ?n2)
+      (a-empty_box_in_med_unit ?r ?b ?co ?m ?n1 ?end_cap)
     )
   )
 
-  
+  (:method m-no_delivery_to_do
+    :parameters(?co - content ?m - medical_unit ?bf_end_cap ?end_cap - capacity-number)
+    :task(deliver_content_amount ?co ?m ?bf_end_cap)
+    :ordered-subtasks(and
+      (noop_delivery ?co ?m ?bf_end_cap)
+    )
+  )
+
+  (:method m-deliver_content_amount
+    :parameters(?r - delivery_robot ?ca - carrier ?b - box ?co - content ?m - medical_unit ?bf_end_cap ?end_cap - capacity-number)
+    :task(deliver_content_amount ?co ?m ?end_cap)
+    :ordered-subtasks(and
+      (deliver_content_amount ?co ?m ?bf_end_cap)
+      (go_deliver ?r ?ca ?b ?co ?m ?end_cap)
+    )
+  )
+
   ; (:method m-empty_box_in_med_unit
   ;   :parameters(?r - delivery_robot ?b - box ?c - content ?m - medical_unit ?n1 ?n2 - capacity-number)
   ;   :task(empty_box_in_med_unit ?b ?c ?m)
@@ -294,6 +310,13 @@
       (empty_box ?b)
       (med_unit_inventory_of ?m ?c ?n2)
     )
+  )
+
+  (:action noop_delivery
+    :parameters (?co - content?m - medical_unit ?bf_end_cap - capacity-number)
+    :precondition (and
+      (med_unit_inventory_of ?m ?co ?bf_end_cap))
+    :effect ()
   )
 
   ; ;Drone 

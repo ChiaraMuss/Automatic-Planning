@@ -38,9 +38,11 @@
       ;(load_content_box_to_carrier box2 aspirin carrier1)
       ;(load_content_box_to_carrier box3 aspirin carrier1)
 
-      
-      (task0(go_pickup delivery_robot1 carrier1 box2 aspirin heliport_alpha))
-      (task1(go_deliver delivery_robot1 carrier1 box2 aspirin dentistry))
+      (task0(go_pickup delivery_robot1 carrier1 box4 aspirin central_warehouse))
+      (task1(go_pickup delivery_robot1 carrier1 box2 aspirin heliport_alpha))
+
+      ;(task2(go_deliver delivery_robot1 carrier1 box2 aspirin dentistry capacity1))
+      (task2(deliver_content_amount aspirin dentistry capacity2))
       ;(task0(get-to delivery_robot2 dentistry))
       ;(load_box_to_carrier box2 carrier1)
       ;(load_box_to_carrier box3 carrier3)
