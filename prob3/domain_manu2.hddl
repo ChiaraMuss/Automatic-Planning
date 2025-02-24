@@ -58,7 +58,8 @@
   )
 
   (:task load_content_box_to_carrier ;;The object can be loaded only at inventory locations thanks to method definitions
-    :parameters(?b - box ?c - content ?l - inventory ?ca - carrier)
+    :parameters(?b - box ?c - content ?l - inventory ?r - robot ?ca - carrier)
+    :precondition(robot_has_carrier ?r ?ca) ; this precondition halved the search time 
   )
 
   (:task deliver_content_amount
@@ -130,7 +131,7 @@
     :task(go_pickup ?r ?ca ?b ?co ?l)
     :ordered-subtasks(and
       (get-to ?r ?l)
-      (load_content_box_to_carrier ?b ?co ?l ?ca)
+      (load_content_box_to_carrier ?b ?co ?l ?r ?ca)
     )
   )
 
@@ -139,23 +140,23 @@
   ;Delivery_robot
   (:method m-load_to_delivery_carrier
     :parameters(?r - delivery_robot ?c - carrier ?l - inventory ?b - box ?co - content ?n1 ?n2 - capacity-number)
-    :task(load_content_box_to_carrier ?b ?co ?l ?c)
+    :task(load_content_box_to_carrier ?b ?co ?l ?r ?c)
     :subtasks
-    (load_up_delivery_carrier ?r ?c ?l ?b ?co ?n1 ?n2)
+    (load_up_carrier ?r ?c ?l ?b ?co ?n1 ?n2)
   )
   ;
   ;(:method m-unload_box_from_delivery_carrier
   ;  :parameters(?r - delivery_robot ?c - carrier ?l - location ?b - box ?co - content ?n1 ?n2 - capacity-number)
   ;  :task(unload_content_box_to_location ?b ?co ?l)
   ;  :subtasks
-  ;  (unload_from_delivery_carrier ?r ?c ?l ?b ?co ?n1 ?n2)
+  ;  (unload_from_carrier ?r ?c ?l ?b ?co ?n1 ?n2)
   ;)
   (:method m-go_deliver
     :parameters(?r - delivery_robot ?ca - carrier ?co - content ?b - box ?m - medical_unit ?ca1 ?ca2 ?n1 ?end_cap - capacity-number)
     :task(go_deliver ?r ?ca ?b ?co ?m ?end_cap)
     :ordered-subtasks(and
       (get-to ?r ?m)
-      (unload_from_delivery_carrier ?r ?ca ?m ?b ?co ?ca1 ?ca2)
+      (unload_from_carrier ?r ?ca ?m ?b ?co ?ca1 ?ca2)
       (a-empty_box_in_med_unit ?r ?b ?co ?m ?n1 ?end_cap)
     )
   )
@@ -257,8 +258,8 @@
   )
   ;;;-------- Delivery supply actions
   ;;Delivery_robot
-  (:action load_up_delivery_carrier
-    :parameters (?r - delivery_robot ?c - carrier ?l - location ?b - box ?co - content ?n1 ?n2 - capacity-number)
+  (:action load_up_carrier
+    :parameters (?r - robot ?c - carrier ?l - location ?b - box ?co - content ?n1 ?n2 - capacity-number)
     :precondition (and
       (robot_at ?r ?l)
       (robot_has_carrier ?r ?c)
@@ -274,10 +275,9 @@
       (carrier_capacity ?c ?n1)
     )
   )
-  ;
 
-  (:action unload_from_delivery_carrier
-    :parameters (?r - delivery_robot ?c - carrier ?l - location ?b - box ?co - content ?n1 ?n2 - capacity-number)
+  (:action unload_from_carrier
+    :parameters (?r - robot ?c - carrier ?l - location ?b - box ?co - content ?n1 ?n2 - capacity-number)
     :precondition (and
       (robot_at ?r ?l)
       (robot_has_carrier ?r ?c)
