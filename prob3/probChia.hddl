@@ -23,45 +23,46 @@
       (deliver-patient accompany_robot2 ciro neuro_surgery)
       (get-to delivery_robot1 cardiology)
       (load_any_box_to_carrier delivery_robot1 carrier1 central_warehouse box1)
-      (unload_box_to_location delivery_robot1 box1 cardiology)
+      (unload_box_to_location delivery_robot1 carrier1 box1 cardiology)  
       (get-to delivery_robot2 neuro_surgery)
       (load_any_box_to_carrier delivery_robot2 carrier2 central_warehouse box2)
-      (unload_box_to_location delivery_robot2 box2 neuro_surgery)
+      (unload_box_to_location delivery_robot2 carrier2 box2 neuro_surgery)  
       (get-to drone1 radiology)
       (load_any_box_to_carrier drone1 carrier3 central_warehouse box3)
-      (unload_box_to_location drone1 box3 radiology)
-
+      (unload_box_to_location drone1 carrier3 box3 radiology)  
     )
-    :ordering
-    ()
-    :constraints
-    ()
+    :ordering ()
+    :constraints ()
   )
   (:init
+    ;; Capacità dei carrier
+    (carrier_capacity carrier1 capacity3)
+    (carrier_capacity carrier2 capacity2)
+    (carrier_capacity carrier3 capacity2)
+    (carrier_capacity carrier4 capacity5)
+
+    ;; Gerarchia delle capacità
     (capacity-predecessor capacity0 capacity1)
     (capacity-predecessor capacity1 capacity2)
     (capacity-predecessor capacity2 capacity3)
     (capacity-predecessor capacity3 capacity4)
     (capacity-predecessor capacity4 capacity5)
-    (capacity-predecessor capacity5 capacity6)
-    (capacity-predecessor capacity6 capacity7)
 
-    ; Initial positions of robots, drones, and patients
+    ;; Posizione iniziale di robot, droni e pazienti
     (robot_at delivery_robot1 central_warehouse)
     (robot_at delivery_robot2 central_warehouse)
     (robot_at accompany_robot1 entrance)
     (robot_at accompany_robot2 entrance)
-
     (robot_at drone1 central_warehouse)
     (robot_at drone2 central_warehouse)
     (patient_at rocco entrance)
     (patient_at ciro entrance)
 
-    ;; Accompanying robot status
+    ;; Stato dei robot accompagnatori
     (free_to_accompany accompany_robot1)
     (free_to_accompany accompany_robot2)
 
-    ; Initial positions of boxes
+    ;; Stato iniziale dei box
     (at_box box1 central_warehouse)
     (at_box box2 central_warehouse)
     (at_box box3 central_warehouse)
@@ -73,18 +74,12 @@
     (at_box box9 central_warehouse)
     (at_box box10 central_warehouse)
 
-    ; Initial carrier positions and assignments
+    ;; Assegnazione dei carrier ai robot
     (robot_has_carrier delivery_robot1 carrier1)
     (robot_has_carrier delivery_robot2 carrier2)
     (robot_has_carrier drone1 carrier3)
 
-    ; Carrier capacities
-    (carrier_capacity carrier1 capacity3)
-    (carrier_capacity carrier2 capacity2)
-    (carrier_capacity carrier3 capacity2)
-    (carrier_capacity carrier4 capacity5)
-
-    ; Box contents
+    ;; Contenuti delle scatole
     (contains box1 aspirin)
     (contains box2 aspirin)
     (contains box3 aspirin)
@@ -96,13 +91,16 @@
     (contains box9 tongue_depressor)
     (contains box10 tongue_depressor)
 
-    ; Terrestrial connections
+    ;; Stato iniziale: box già caricati sui carrier
+    (carrier_load carrier1 box1)
+    (carrier_load carrier2 box2)
+    (carrier_load carrier3 box3)
+
+    ;; Connessioni tra i settori
     (connected central_warehouse sector_a)
     (connected sector_a central_warehouse)
-
     (connected sector_a sector_b)
     (connected sector_b sector_a)
-
     (connected sector_b sector_c)
     (connected sector_c sector_b)
     (connected day_hospital sector_c)
@@ -113,35 +111,29 @@
     (connected sector_b entrance)
     (connected sector_a cardiology)
     (connected sector_b neuro_surgery)
-
-
     (connected entrance sector_c)
     (connected sector_c entrance)
     (connected sector_c heliport_alpha)
     (connected heliport_alpha sector_c)
-
     (connected neuro_surgery sector_b)
     (connected sector_b neuro_surgery)
     (connected heliport_alpha neuro_surgery)
     (connected neuro_surgery heliport_alpha)
-
     (connected radiology sector_b)
     (connected sector_b radiology)
     (connected radiology heliport_alpha)
     (connected heliport_alpha radiology)
-
     (connected cardiology sector_a)
     (connected sector_a cardiology)
-
     (connected dentistry sector_a)
     (connected sector_a dentistry)
 
-    ; Drone port available
+    ;; Drone port disponibili
     (has_drone_port heliport_alpha)
     (has_drone_port central_warehouse)
     (has_drone_port radiology)
     (has_drone_port cardiology)
     (has_drone_port neuro_surgery)
-
   )
 )
+
