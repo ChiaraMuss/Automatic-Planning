@@ -36,9 +36,6 @@
     (carrier_load ?c - carrier ?b - box)
     (robot_has_carrier ?r - robot ?c - carrier)
     (at_box ?b - box ?l - location)
-    (empty ?b - box)
-    (full ?b - box ?c - content)
-    (loaded ?r - robot ?b - box)
     (carrier_capacity ?c - carrier ?cap - capacity-number)
     (capacity-predecessor ?s1 - capacity-number ?s2 - capacity-number)
   )
@@ -63,9 +60,10 @@
     :parameters(?r - robot ?c - carrier ?l - inventory ?b - box)
   )
 
-  (:task unload_box_to_location ;; The object can be loaded only at inventory locations thanks to preconditions
-    :parameters(?b - box ?l - location)
+  (:task unload_box_to_location
+  :parameters(?r - robot ?c - carrier ?b - box ?l - location)
   )
+
 
   ;;----------------- Movement Methods
 
@@ -128,12 +126,14 @@
     (select_and_load_box ?r ?c ?l ?b)
   )
 
+  
   (:method m-unload_box_to_location
-    :parameters(?r - robot ?c - carrier ?l - location ?b - box)
-    :task(unload_box_to_location ?b ?l)
-    :subtasks
-    (perform_unload ?r ?c ?l ?b)
+  :parameters(?r - robot ?c - carrier ?b - box ?l - location)
+  :task (unload_box_to_location ?r ?c ?b ?l)
+  :subtasks
+  (perform_unload ?r ?c ?l ?b)
   )
+
 
   ;;############################## ACTIONS
   ;;----------------- Movement Actions
@@ -168,25 +168,35 @@
   ;;---------  Supply Management Actions
 
   (:action select_and_load_box
-    :parameters (?r - robot ?c - carrier ?l - inventory ?b - box)
-    :precondition (and
-      (robot_at ?r ?l)
-      (robot_has_carrier ?r ?c)
-      (at_box ?b ?l))
-    :effect (and
-      (not (at_box ?b ?l))
-      (carrier_load ?c ?b))
-  )
+  :parameters (?r - robot ?c - carrier ?l - inventory ?b - box ?cap1 - capacity-number ?cap2 - capacity-number)
+  :precondition (and
+    (robot_at ?r ?l)
+    (robot_has_carrier ?r ?c)
+    (at_box ?b ?l)
+    (carrier_capacity ?c ?cap1)
+    (capacity-predecessor ?cap1 ?cap2)) ;; Deve esserci un successore di capacità!
+  :effect (and
+    (not (at_box ?b ?l))
+    (carrier_load ?c ?b)
+    (not (carrier_capacity ?c ?cap1))
+    (carrier_capacity ?c ?cap2)) ;; Scala la capacità!
+)
+
 
   (:action perform_unload
-    :parameters (?r - robot ?c - carrier ?l - location ?b - box)
-    :precondition (and
-      (robot_at ?r ?l)
-      (carrier_load ?c ?b))
-    :effect (and
-      (not (carrier_load ?c ?b))
-      (at_box ?b ?l))
-  )
+  :parameters (?r - robot ?c - carrier ?l - location ?b - box ?cap1 - capacity-number ?cap2 - capacity-number)
+  :precondition (and
+    (robot_at ?r ?l)
+    (carrier_load ?c ?b)
+    (carrier_capacity ?c ?cap2)
+    (capacity-predecessor ?cap2 ?cap1))
+  :effect (and
+    (not (carrier_load ?c ?b))
+    (at_box ?b ?l)
+    (not (carrier_capacity ?c ?cap2))
+    (carrier_capacity ?c ?cap1)) ;; Ripristina la capacità usata
+)
+
 
   (:action take_patient
     :parameters (?r - accompany_robot ?p - patient ?l - location)
