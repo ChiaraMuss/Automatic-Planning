@@ -19,6 +19,8 @@
   (:htn
     :tasks
     (and
+      (deliver-patient accompany_robot1 rocco cardiology)
+      (deliver-patient accompany_robot2 ciro neuro_surgery)
       (get-to delivery_robot1 cardiology)
       (load_any_box_to_carrier delivery_robot1 carrier1 central_warehouse box1)
       (unload_box_to_location delivery_robot1 box1 cardiology)
@@ -28,8 +30,7 @@
       (get-to drone1 radiology)
       (load_any_box_to_carrier drone1 carrier3 central_warehouse box3)
       (unload_box_to_location drone1 box3 radiology)
-      (deliver-patient rocco cardiology)
-      (deliver-patient ciro neuro_surgery)
+
     )
     :ordering
     ()
@@ -106,6 +107,13 @@
     (connected sector_c sector_b)
     (connected day_hospital sector_c)
     (connected sector_c day_hospital)
+    (connected entrance sector_a)
+    (connected sector_a entrance)
+    (connected entrance sector_b)
+    (connected sector_b entrance)
+    (connected sector_a cardiology)
+    (connected sector_b neuro_surgery)
+
 
     (connected entrance sector_c)
     (connected sector_c entrance)
