@@ -50,8 +50,14 @@
   )
 
   (:task deliver-patient
-    :parameters (?p - patient ?m - medical_unit)
+  :parameters (?r - accompany_robot ?p - patient ?m - medical_unit)
   )
+
+
+  (:task move_patient
+  :parameters (?r - accompany_robot ?p - patient ?l1 ?l2 - location)
+  ) 
+
 
   (:task load_any_box_to_carrier ;; The object can be loaded only at inventory locations thanks to method definitions
     :parameters(?r - robot ?c - carrier ?l - inventory ?b - box)
@@ -94,9 +100,17 @@
   ;;---------  Patient Delivery methods
 
   (:method m-deliver-patient
+  :parameters (?r - accompany_robot ?p - patient ?l1 ?l2 - location)
+  :task (deliver-patient ?r ?p ?l2) ;; <-- CORRETTO
+  :ordered-subtasks (and
+    (move_patient ?r ?p ?l1 ?l2)
+  )
+)
+
+
+  (:method move_patient
     :parameters (?r - accompany_robot ?p - patient ?l1 ?l2 - location)
-    :task
-    (deliver-patient ?p ?l2)
+    :task (move_patient ?r ?p ?l1 ?l2)
     :ordered-subtasks(and
       (get-to ?r ?l1)
       (take_patient ?r ?p ?l1)
@@ -104,6 +118,7 @@
       (deliver_patient_at_med_bay ?r ?p ?l2)
     )
   )
+
 
   ;;-------- Delivery supply methods
   (:method m-load_any_to_carrier
