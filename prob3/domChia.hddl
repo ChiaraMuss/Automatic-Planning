@@ -56,6 +56,9 @@
   ) 
 
 
+  
+
+
   (:task load_any_box_to_carrier ;; The object can be loaded only at inventory locations thanks to method definitions
     :parameters(?r - robot ?c - carrier ?l - inventory ?b - box)
   )
