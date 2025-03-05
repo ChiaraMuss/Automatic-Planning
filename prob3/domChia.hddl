@@ -113,7 +113,7 @@
     :parameters (?r - accompany_robot ?p - patient ?l1 ?l2 - location)
     :task (move_patient ?r ?p ?l1 ?l2)
     :ordered-subtasks(and
-      (get-to ?r ?l1)
+      ;(get-to ?r ?l1)
       (take_patient ?r ?p ?l1)
       (get-to ?r ?l2)
       (deliver_patient_at_med_bay ?r ?p ?l2)
