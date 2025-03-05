@@ -16,22 +16,15 @@
     cardiology dentistry radiology neuro_surgery day_hospital - medical_unit
     capacity0 capacity1 capacity2 capacity3 capacity4 capacity5 capacity6 capacity7 - capacity-number
   )
+
   (:htn
     :tasks
     (and
-      ;(get-to accompany_robot1 cardiology)
       (deliver-patient accompany_robot1 rocco cardiology)
       (deliver-patient accompany_robot2 ciro neuro_surgery)
-      (get-to accompany_robot2 neuro_surgery)
-      (load_any_box_to_carrier delivery_robot1 carrier1 central_warehouse box1)
-      (get-to delivery_robot1 cardiology)
+      (unload_box_to_location drone1 carrier3 box3 heliport_alpha) 
       (unload_box_to_location delivery_robot1 carrier1 box1 cardiology) 
-      (load_any_box_to_carrier delivery_robot2 carrier2 central_warehouse box2)
-      (get-to delivery_robot2 neuro_surgery)
       (unload_box_to_location delivery_robot2 carrier2 box2 neuro_surgery)  
-      (load_any_box_to_carrier drone1 carrier3 central_warehouse box3)
-      (get-to drone1 heliport_alpha)
-      (unload_box_to_location drone1 carrier3 box3 heliport_alpha)  
       
     )
     :ordering ()
@@ -135,4 +128,5 @@
   )
 )
 
+     
      
