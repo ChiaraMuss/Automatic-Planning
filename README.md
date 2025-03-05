@@ -2,7 +2,7 @@
 
 ### University of Trento - Artificial Intelligence Systems  
 **Authors**: Chiara Musso, Emmanuele V. Coppola  
-This project is part of the **Automated Planning** course taught by **Professor Marco Roveri**.
+This project is part of the **Automated Planning Theory and Practice** course taught by **Professor Marco Roveri**.
 
 ## Overview
 
