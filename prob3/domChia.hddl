@@ -137,6 +137,18 @@
   (perform_unload ?r ?c ?l ?b)
   )
 
+  (:method m-deliver-box
+  :parameters (?r - robot ?c - carrier ?l1 - inventory ?b - box ?l2 - location)
+  :task (unload_box_to_location ?r ?c ?b ?l2)
+  :ordered-subtasks
+  (and
+    (load_any_box_to_carrier ?r ?c ?l1 ?b)
+    (get-to ?r ?l2)
+    (unload_box_to_location ?r ?c ?b ?l2)
+  )
+)
+
+
 
   ;;############################## ACTIONS
   ;;----------------- Movement Actions
