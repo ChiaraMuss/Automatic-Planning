@@ -8,7 +8,7 @@
 
   (:types
     ;## Removed all the type hierarchy
-    medical_unit inventory location delivery_robot accompany_robot drone content carrier box patient
+    medical_unit inventory location delivery_robot accompany_robot drone content carrier box patient capacity-number
   )
 
   (:predicates ;## Thanks to the deletion of the type hierarchy we had to add all of the permutations of robot and location that we need to mantain compatibility with prob4 problems

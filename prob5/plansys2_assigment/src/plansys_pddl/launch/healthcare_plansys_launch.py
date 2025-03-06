@@ -39,7 +39,7 @@ def generate_launch_description():
             'launch',
             'plansys2_bringup_launch_monolithic.py')),
         launch_arguments={
-          'model_file': example_dir + '/pddl/domain4temporalnew.pddl',
+          'model_file': example_dir + '/pddl/domainsimplified.pddl',
           'namespace': namespace
           }.items())
 

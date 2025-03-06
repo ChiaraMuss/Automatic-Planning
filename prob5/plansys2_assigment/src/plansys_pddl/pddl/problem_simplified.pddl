@@ -128,7 +128,6 @@
     )
     (:goal
         (and
-            ;(robot_at accompany_robot1 sector_a)
             (med_unit_inventory_of day_hospital aspirin capacity3)
             (med_unit_inventory_of cardiology tongue_depressor capacity1)
             (med_unit_inventory_of dentistry aspirin capacity2)
