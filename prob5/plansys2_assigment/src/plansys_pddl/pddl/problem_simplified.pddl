@@ -4,7 +4,7 @@
     (:objects
         central_warehouse heliport_alpha - inventory
         entrance sector_a sector_b sector_c - location
-        scalpel tongue_depressor aspirin  - content
+        scalpel tongue_depressor aspirin - content
         box1 box2 box3 box4 box5 box6 box7 box8 box9 box10 - box
         delivery_robot1 delivery_robot2 - delivery_robot
         accompany_robot1 - accompany_robot

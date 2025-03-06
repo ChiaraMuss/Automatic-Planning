@@ -4,7 +4,7 @@
 
 (define (domain temporal_healthcare_simplified)
 
-  (:requirements :strips :typing :durative-actions)
+  (:requirements :typing :durative-actions)
 
   (:types
     ;## Removed all the type hierarchy
@@ -218,8 +218,8 @@
 
     :effect (and
       (at start (not (carrier_load ?c ?b)))
-      (at start (not (carrier_capacity ?c ?n1)))
-      (at start (carrier_capacity ?c ?n2))
+      (at end (not (carrier_capacity ?c ?n1)))
+      (at end (carrier_capacity ?c ?n2))
 
       (at end (at_box_medical_unit ?b ?l))
     )
@@ -238,6 +238,7 @@
     )
     :effect (and
       (at start (not (contains ?b ?c))) ; Remove content from the box
+      (at end (not(med_unit_inventory_of ?m ?c ?n1)))
       (at end (med_unit_inventory_of ?m ?c ?n2)) ; Add content to the medical unit's inventory
     )
   )
@@ -302,8 +303,10 @@
     :parameters (?ar - accompany_robot ?w - location ?p - patient)
     :duration (= ?duration 20) ; (expected_patient_interaction_time))
     :condition (and
-      (over all (accompany_robot_at_location ?ar ?w)) ; to force the robot to stay put during the action
       (at start (free_to_accompany ?ar))
+      (at start (patient_at_location ?p ?w))
+      (over all (accompany_robot_at_location ?ar ?w)) ; to force the robot to stay put during the action
+
     )
     :effect (and
       (at start (not (patient_at_location ?p ?w)))
@@ -316,8 +319,9 @@
     :parameters (?ar - accompany_robot ?m - medical_unit ?p - patient)
     :duration (= ?duration 20) ; (expected_patient_interaction_time))
     :condition (and
-      (over all (accompany_robot_at_medical_unit ?ar ?m))
       (at start (accompanying_pat ?p ?ar))
+      (over all (accompany_robot_at_medical_unit ?ar ?m))
+
     )
     :effect (and
       (at end (not (accompanying_pat ?p ?ar)))
