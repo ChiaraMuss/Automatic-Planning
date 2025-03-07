@@ -13,9 +13,7 @@
 # limitations under the License.
 
 import os
-
 from ament_index_python.packages import get_package_share_directory
-
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
@@ -24,149 +22,229 @@ from launch_ros.actions import Node
 
 
 def generate_launch_description():
-    # Get the launch directory
-    example_dir = get_package_share_directory('plansys_pddl')
+    # Get the package share directory
+    package_dir = get_package_share_directory('plansys_pddl')
     namespace = LaunchConfiguration('namespace')
 
+    # Declare namespace argument
     declare_namespace_cmd = DeclareLaunchArgument(
         'namespace',
         default_value='',
-        description='Namespace')
+        description='Namespace for the nodes'
+    )
 
+    # Include PlanSys2 bringup launch
     plansys2_cmd = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(os.path.join(
             get_package_share_directory('plansys2_bringup'),
             'launch',
             'plansys2_bringup_launch_monolithic.py')),
         launch_arguments={
-          'model_file': example_dir + '/pddl/domainsimplified.pddl',
-          'namespace': namespace
-          }.items())
+            'model_file': package_dir + '/pddl/domainsimplified.pddl',
+            'namespace': namespace
+        }.items()
+    )
 
-    """     # Specify the actions
-        move_cmd = Node(
-            package='plansys_pddl',
-            executable='move_action_node',
-            name='move_action_node',
-            namespace=namespace,
-            output='screen',
-            parameters=[])
-
-        charge_cmd = Node(
-            package='plansys_pddl',
-            executable='charge_action_node',
-            name='charge_action_node',
-            namespace=namespace,
-            output='screen',
-            parameters=[])
-
-        ask_charge_cmd = Node(
-            package='plansys_pddl',
-            executable='ask_charge_action_node',
-            name='ask_charge_action_node',
-            namespace=namespace,
-            output='screen',
-            parameters=[])   # Create the launch description and populate
-        """
+    # ----------------------------------------------- ROBOT ACTIONS
     check_obstacles_cmd = Node(
         package='plansys_pddl',
         executable='check_obstacles_node',
         name='check_obstacles_node',
         namespace=namespace,
         output='screen',
-        parameters=[])   # Create the launch description and populate
-            
-    move_cmd = Node(
+        parameters=[]
+    )
+
+    move_between_location_delivery_cmd = Node(
         package='plansys_pddl',
-        executable='move_action_node',
-        name='move_action_node',
+        executable='move_between_location_delivery_robot',
+        name='move_between_location_delivery_robot',
         namespace=namespace,
         output='screen',
-        parameters=[])
-    
+        parameters=[]
+    )
+
+    move_between_location_accompany_cmd = Node(
+        package='plansys_pddl',
+        executable='move_between_location_accompany_robot',
+        name='move_between_location_accompany_robot',
+        namespace=namespace,
+        output='screen',
+        parameters=[]
+    )
+
+    move_in_inventory_delivery_cmd = Node(
+        package='plansys_pddl',
+        executable='move_in_inventory_delivery_robot',
+        name='move_in_inventory_delivery_robot',
+        namespace=namespace,
+        output='screen',
+        parameters=[]
+    )
+
+    move_in_med_unit_delivery_cmd = Node(
+        package='plansys_pddl',
+        executable='move_in_med_unit_delivery_robot',
+        name='move_in_med_unit_delivery_robot',
+        namespace=namespace,
+        output='screen',
+        parameters=[]
+    )
+
+    move_in_med_unit_accompany_cmd = Node(
+        package='plansys_pddl',
+        executable='move_in_med_unit_accompany_robot',
+        name='move_in_med_unit_accompany_robot',
+        namespace=namespace,
+        output='screen',
+        parameters=[]
+    )
+
+    move_out_med_unit_delivery_cmd = Node(
+        package='plansys_pddl',
+        executable='move_out_med_unit_delivery_robot',
+        name='move_out_med_unit_delivery_robot',
+        namespace=namespace,
+        output='screen',
+        parameters=[]
+    )
+
+    move_out_inventory_delivery_cmd = Node(
+        package='plansys_pddl',
+        executable='move_out_inventory_delivery_robot',
+        name='move_out_inventory_delivery_robot',
+        namespace=namespace,
+        output='screen',
+        parameters=[]
+    )
+
+    move_out_med_unit_accompany_cmd = Node(
+        package='plansys_pddl',
+        executable='move_out_med_unit_accompany_robot',
+        name='move_out_med_unit_accompany_robot',
+        namespace=namespace,
+        output='screen',
+        parameters=[]
+    )
+
+    # ----------------------------------------------- CARRIER MANAGEMENT
     load_to_carrier_cmd = Node(
         package='plansys_pddl',
-        executable='load_to_robot_carrier_node',
-        name='load_to_robot_carrier_node',
+        executable='load_to_robot_carrier_inventory',
+        name='load_to_robot_carrier_inventory',
         namespace=namespace,
         output='screen',
-        parameters=[])
-    
+        parameters=[]
+    )
+
     unload_from_carrier_cmd = Node(
         package='plansys_pddl',
-        executable='unload_from_robot_carrier_node',
-        name='unload_from_robot_carrier_node',
+        executable='unload_from_robot_carrier_inventory',
+        name='unload_from_robot_carrier_inventory',
         namespace=namespace,
         output='screen',
-        parameters=[])
-    
+        parameters=[]
+    )
+
+    unload_from_carrier_medical_cmd = Node(
+        package='plansys_pddl',
+        executable='unload_from_robot_carrier_medical_unit',
+        name='unload_from_robot_carrier_medical_unit',
+        namespace=namespace,
+        output='screen',
+        parameters=[]
+    )
+
     unload_content_cmd = Node(
         package='plansys_pddl',
-        executable='unload_content_node',
-        name='unload_content_node',
+        executable='unload_content',
+        name='unload_content',
         namespace=namespace,
         output='screen',
-        parameters=[])
+        parameters=[]
+    )
+
     # ----------------------------------------------- DRONE CAPABILITIES
     load_to_drone_cmd = Node(
         package='plansys_pddl',
-        executable='load_to_drone_carrier_node',
-        name='load_to_drone_carrier_node',
+        executable='load_to_drone_carrier',
+        name='load_to_drone_carrier',
         namespace=namespace,
         output='screen',
-        parameters=[])
-    
+        parameters=[]
+    )
+
     unload_from_drone_cmd = Node(
         package='plansys_pddl',
-        executable='unload_from_drone_carrier_node',
-        name='unload_from_drone_carrier_node',
+        executable='unload_from_drone_carrier',
+        name='unload_from_drone_carrier',
         namespace=namespace,
         output='screen',
-        parameters=[])
+        parameters=[]
+    )
 
-    
     move_drone_cmd = Node(
         package='plansys_pddl',
-        executable='move_drone_node',
-        name='move_drone_node',
+        executable='move_drone',
+        name='move_drone',
         namespace=namespace,
         output='screen',
-        parameters=[])
-    # ---------------------------------------------- PATIENTS MANAGEMENT
+        parameters=[]
+    )
+
+    # ---------------------------------------------- PATIENT MANAGEMENT
     take_patient_cmd = Node(
         package='plansys_pddl',
-        executable='take_patient_node',
-        name='take_patient_node',
+        executable='take_patient',
+        name='take_patient',
         namespace=namespace,
         output='screen',
-        parameters=[])
-    
+        parameters=[]
+    )
+
     deliver_patient_cmd = Node(
         package='plansys_pddl',
-        executable='deliver_patient_node',
-        name='deliver_patient_node',
+        executable='deliver_patient',
+        name='deliver_patient',
         namespace=namespace,
         output='screen',
-        parameters=[])
-    
+        parameters=[]
+    )
 
+    # ----------------------------------------------- LAUNCH DESCRIPTION
     ld = LaunchDescription()
 
+    # Declare launch options
     ld.add_action(declare_namespace_cmd)
 
-    # Declare the launch options
+    # Add core PlanSys2 launch
     ld.add_action(plansys2_cmd)
-    ld.add_action(move_cmd)
+
+    # Add robot movement nodes
     ld.add_action(check_obstacles_cmd)
+    ld.add_action(move_between_location_delivery_cmd)
+    ld.add_action(move_between_location_accompany_cmd)
+    ld.add_action(move_in_inventory_delivery_cmd)
+    ld.add_action(move_in_med_unit_delivery_cmd)
+    ld.add_action(move_in_med_unit_accompany_cmd)
+    ld.add_action(move_out_med_unit_delivery_cmd)
+    ld.add_action(move_out_inventory_delivery_cmd)
+    ld.add_action(move_out_med_unit_accompany_cmd)
 
-
+    # Add carrier nodes
     ld.add_action(load_to_carrier_cmd)
     ld.add_action(unload_from_carrier_cmd)
+    ld.add_action(unload_from_carrier_medical_cmd)
     ld.add_action(unload_content_cmd)
+
+    # Add drone nodes
     ld.add_action(load_to_drone_cmd)
     ld.add_action(unload_from_drone_cmd)
     ld.add_action(move_drone_cmd)
+
+    # Add patient management nodes
     ld.add_action(take_patient_cmd)
     ld.add_action(deliver_patient_cmd)
-    
+
     return ld
+
