@@ -256,4 +256,4 @@
       (free_to_accompany ?ar)  ;; The robot is now free
       (patient_at ?p ?m))  ;; The patient is now at the medical unit
   )
-
+)
