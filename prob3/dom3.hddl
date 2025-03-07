@@ -1,75 +1,86 @@
+;; Define the hierarchical domain for healthcare logistics
 (define (domain healthcare_hierarchy)
 
-  ;; Requirements
+  ;; Requirements needed for this domain
   (:requirements :typing :negative-preconditions :strips :action-costs)
 
-  ;; Types
+
+  ;; Define types used in the domain
   (:types
-    location inventory - object
-    medical_unit - location
-    content - object
-    scissor band_aid syringes - content
-    robot - object
-    terrestrial_robot aerial_robot - robot
-    delivery_robot accompany_robot - terrestrial_robot
-    drone - aerial_robot
-    box - object
-    carrier - object
-    patient - object
-    capacity-number - object
+    location inventory - object  ;; Locations where robots and patients can be
+    medical_unit - location  ;; A medical unit is a special type of location
+
+    content - object  ;; General type for medical supplies
+    scissor band_aid syringes - content  ;; Specific types of medical supplies
+
+    robot - object  ;; General category for all robots
+    terrestrial_robot aerial_robot - robot  ;; Robots are either terrestrial or aerial
+    delivery_robot accompany_robot - terrestrial_robot  ;; Ground robots: delivery & patient transport
+    drone - aerial_robot  ;; Drones are aerial robots
+
+    box - object  ;; Represents containers for medical supplies
+    carrier - object  ;; Special transport containers that can hold multiple boxes
+
+    patient - object  ;; Represents patients that need to be transported
+
+    capacity-number - object  ;; Represents capacity values for carriers (to track their load)
   )
 
-  ;; Predicates
+
+    ;; Define predicates to describe the system state
   (:predicates
-    ;Robot Movement
-    (robot_at ?r - robot ?l - location)
-    (connected ?l1 - location ?l2 - location)
-    (has_drone_port ?l - location)
+    ;; Robot movement and connectivity
+    (robot_at ?r - robot ?l - location)  ;; A robot ?r is at a specific location ?l
+    (connected ?l1 - location ?l2 - location)  ;; Two locations ?l1 and ?l2 are connected
+    (has_drone_port ?l - location)  ;; A location ?l has a drone port
 
-    ;Patients
-    (free_to_accompany ?r - accompany_robot)
-    (accompanying_pat ?p - patient ?ar - accompany_robot)
-    (patient_at ?p - patient ?l - location)
+    ;; Patient management
+    (free_to_accompany ?r - accompany_robot)  ;; The accompanying robot ?r is available to transport a patient
+    (accompanying_pat ?p - patient ?ar - accompany_robot)  ;; The patient ?p is currently accompanied by robot ?ar
+    (patient_at ?p - patient ?l - location)  ;; The patient ?p is at a specific location ?l
 
-    ;Supply Management
-    (contains ?b - box ?c - content)
-    (carrier_load ?c - carrier ?b - box)
-    (robot_has_carrier ?r - robot ?c - carrier)
-    (at_box ?b - box ?l - location)
-    (carrier_capacity ?c - carrier ?cap - capacity-number)
-    (capacity-predecessor ?s1 - capacity-number ?s2 - capacity-number)
+    ;; Supply management
+    (contains ?b - box ?c - content)  ;; The box ?b contains a specific medical supply ?c
+    (carrier_load ?c - carrier ?b - box)  ;; The carrier ?c is loaded with the box ?b
+    (robot_has_carrier ?r - robot ?c - carrier)  ;; The robot ?r is assigned the carrier ?c
+    (at_box ?b - box ?l - location)  ;; The box ?b is located at location ?l
+
+    ;; Carrier capacity tracking
+    (carrier_capacity ?c - carrier ?cap - capacity-number)  ;; Carrier ?c has a capacity ?cap
+    (capacity-predecessor ?s1 - capacity-number ?s2 - capacity-number)  ;; Capacity ?s1 is the previous step of capacity ?s2
   )
 
-  ;; **TASK HTN**
 
+    ;; ** HTN Tasks **
+
+  ;; Task: Move a robot to a specified location
   (:task get-to
     :parameters (?r - robot ?to - location)
   )
 
+  ;; Task: Deliver a patient to a medical unit
   (:task deliver-patient
-  :parameters (?r - accompany_robot ?p - patient ?m - medical_unit)
+    :parameters (?r - accompany_robot ?p - patient ?m - medical_unit)
   )
 
-
+  ;; Task: Move a patient from one location to another
   (:task move_patient
-  :parameters (?r - accompany_robot ?p - patient ?l1 ?l2 - location)
+    :parameters (?r - accompany_robot ?p - patient ?l1 ?l2 - location)
   ) 
 
-
-  
-
-
-  (:task load_any_box_to_carrier ;; The object can be loaded only at inventory locations thanks to method definitions
-    :parameters(?r - robot ?c - carrier ?l - inventory ?b - box)
+  ;; Task: Load a box into a carrier at an inventory location
+  (:task load_any_box_to_carrier
+    :parameters (?r - robot ?c - carrier ?l - inventory ?b - box)
   )
 
+  ;; Task: Unload a box from a carrier at a specific location
   (:task unload_box_to_location
-  :parameters(?r - robot ?c - carrier ?b - box ?l - location)
+    :parameters (?r - robot ?c - carrier ?b - box ?l - location)
   )
-
 
   ;;----------------- Movement Methods
 
+  ;; Method: Move an aerial robot between two locations
   (:method m-move-flying
     :parameters (?r - aerial_robot ?l2 ?l3 - location)
     :task
@@ -80,6 +91,7 @@
       (move_aerial ?r ?l2 ?l3))
   )
 
+  ;; Method: Move a terrestrial robot between two locations
   (:method m-move-terrain
     :parameters (?r - terrestrial_robot ?l2 ?l3 - location)
     :task
@@ -90,6 +102,7 @@
       (move_terrestrial ?r ?l2 ?l3))
   )
 
+  ;; Method: No movement required (robot is already at the destination)
   (:method m-i-am-there
     :parameters (?r - robot ?l - location)
     :task
@@ -98,22 +111,23 @@
     (and
       (noop ?r ?l))
   )
-  ;;---------  Patient Delivery methods
 
+    ;;---------  Patient Delivery Methods
+
+  ;; Method: Deliver a patient to a medical unit
   (:method m-deliver-patient
-  :parameters (?r - accompany_robot ?p - patient ?l1 ?l2 - location)
-  :task (deliver-patient ?r ?p ?l2) ;; <-- CORRETTO
-  :ordered-subtasks (and
-    (move_patient ?r ?p ?l1 ?l2)
+    :parameters (?r - accompany_robot ?p - patient ?l1 ?l2 - location)
+    :task (deliver-patient ?r ?p ?l2)
+    :ordered-subtasks (and
+      (move_patient ?r ?p ?l1 ?l2)
+    )
   )
-)
 
-
+  ;; Method: Move a patient from one location to another
   (:method move_patient
     :parameters (?r - accompany_robot ?p - patient ?l1 ?l2 - location)
     :task (move_patient ?r ?p ?l1 ?l2)
     :ordered-subtasks(and
-      ;(get-to ?r ?l1)
       (take_patient ?r ?p ?l1)
       (get-to ?r ?l2)
       (deliver_patient_at_med_bay ?r ?p ?l2)
@@ -121,120 +135,125 @@
   )
 
 
-  ;;-------- Delivery supply methods
+  ;;-------- Delivery Supply Methods
+
+  ;; Method: Load a box into a carrier at an inventory location
   (:method m-load_any_to_carrier
-    :parameters(?r - robot ?c - carrier ?l - inventory ?b - box)
-    :task(load_any_box_to_carrier ?r ?c ?l ?b)
+    :parameters (?r - robot ?c - carrier ?l - inventory ?b - box)
+    :task (load_any_box_to_carrier ?r ?c ?l ?b)
     :subtasks
     (select_and_load_box ?r ?c ?l ?b)
   )
 
-  
+  ;; Method: Unload a box at a specific location
   (:method m-unload_box_to_location
-  :parameters(?r - robot ?c - carrier ?b - box ?l - location)
-  :task (unload_box_to_location ?r ?c ?b ?l)
-  :subtasks
-  (perform_unload ?r ?c ?l ?b)
+    :parameters (?r - robot ?c - carrier ?b - box ?l - location)
+    :task (unload_box_to_location ?r ?c ?b ?l)
+    :subtasks
+    (perform_unload ?r ?c ?l ?b)
   )
 
+  ;; Method: Deliver a box from inventory to a location
   (:method m-deliver-box
-  :parameters (?r - robot ?c - carrier ?l1 - inventory ?b - box ?l2 - location)
-  :task (unload_box_to_location ?r ?c ?b ?l2)
-  :ordered-subtasks
-  (and
-    (load_any_box_to_carrier ?r ?c ?l1 ?b)
-    (get-to ?r ?l2)
-    (unload_box_to_location ?r ?c ?b ?l2)
+    :parameters (?r - robot ?c - carrier ?l1 - inventory ?b - box ?l2 - location)
+    :task (unload_box_to_location ?r ?c ?b ?l2)
+    :ordered-subtasks
+    (and
+      (load_any_box_to_carrier ?r ?c ?l1 ?b)
+      (get-to ?r ?l2)
+      (unload_box_to_location ?r ?c ?b ?l2)
+    )
   )
-)
-
-
 
   ;;############################## ACTIONS
   ;;----------------- Movement Actions
 
+  ;; Action: Move a terrestrial robot (e.g., delivery or accompanying robot)
   (:action move_terrestrial
     :parameters (?v - terrestrial_robot ?l1 ?l2 - location)
     :precondition (and
-      (robot_at ?v ?l1)
-      (connected ?l1 ?l2))
+      (robot_at ?v ?l1)  ;; The robot must be at the starting location
+      (connected ?l1 ?l2))  ;; The two locations must be connected
     :effect (and
-      (not (robot_at ?v ?l1))
-      (robot_at ?v ?l2))
+      (not (robot_at ?v ?l1))  ;; The robot is no longer at the starting location
+      (robot_at ?v ?l2))  ;; The robot has moved to the new location
   )
 
+  ;; Action: Move an aerial robot (e.g., drone)
   (:action move_aerial
     :parameters (?v - aerial_robot ?l1 ?l2 - location)
     :precondition (and
-      (robot_at ?v ?l1)
-      (has_drone_port ?l1)
-      (has_drone_port ?l2)
-    )
+      (robot_at ?v ?l1)  ;; The drone must be at the starting location
+      (has_drone_port ?l1)  ;; The starting location must have a drone port
+      (has_drone_port ?l2))  ;; The destination must also have a drone port
     :effect (and
-      (not (robot_at ?v ?l1))
-      (robot_at ?v ?l2))
+      (not (robot_at ?v ?l1))  ;; The drone is no longer at the starting location
+      (robot_at ?v ?l2))  ;; The drone has moved to the new location
   )
 
+  ;; Action: No operation (used when the robot is already at the target location)
   (:action noop
     :parameters (?v - robot ?l2 - location)
-    :precondition (robot_at ?v ?l2)
+    :precondition (robot_at ?v ?l2)  ;; The robot is already at the target location
     :effect ()
   )
-  ;;---------  Supply Management Actions
 
+    ;;---------  Supply Management Actions
+
+  ;; Action: Load a box into a carrier
   (:action select_and_load_box
-  :parameters (?r - robot ?c - carrier ?l - inventory ?b - box ?cap1 - capacity-number ?cap2 - capacity-number)
-  :precondition (and
-    (robot_at ?r ?l)
-    (robot_has_carrier ?r ?c)
-    (at_box ?b ?l)
-    (carrier_capacity ?c ?cap1)
-    (capacity-predecessor ?cap1 ?cap2)) ;; Deve esserci un successore di capacità!
-  :effect (and
-    (not (at_box ?b ?l))
-    (carrier_load ?c ?b)
-    (not (carrier_capacity ?c ?cap1))
-    (carrier_capacity ?c ?cap2)) ;; Scala la capacità!
-)
+    :parameters (?r - robot ?c - carrier ?l - inventory ?b - box ?cap1 - capacity-number ?cap2 - capacity-number)
+    :precondition (and
+      (robot_at ?r ?l)  ;; The robot must be at the inventory location
+      (robot_has_carrier ?r ?c)  ;; The robot must have an assigned carrier
+      (at_box ?b ?l)  ;; The box must be at the same location
+      (carrier_capacity ?c ?cap1)  ;; The carrier must have some capacity left
+      (capacity-predecessor ?cap1 ?cap2))  ;; The capacity must be reducible (cap1 → cap2)
+    :effect (and
+      (not (at_box ?b ?l))  ;; The box is no longer at the location
+      (carrier_load ?c ?b)  ;; The box is now loaded into the carrier
+      (not (carrier_capacity ?c ?cap1))  ;; Reduce the available capacity
+      (carrier_capacity ?c ?cap2))  ;; Assign the new reduced capacity
+  )
 
-
+  ;; Action: Unload a box from a carrier
   (:action perform_unload
-  :parameters (?r - robot ?c - carrier ?l - location ?b - box ?cap1 - capacity-number ?cap2 - capacity-number)
-  :precondition (and
-    (robot_at ?r ?l)
-    (carrier_load ?c ?b)
-    (carrier_capacity ?c ?cap2)
-    (capacity-predecessor ?cap2 ?cap1))
-  :effect (and
-    (not (carrier_load ?c ?b))
-    (at_box ?b ?l)
-    (not (carrier_capacity ?c ?cap2))
-    (carrier_capacity ?c ?cap1)) ;; Ripristina la capacità usata
-)
+    :parameters (?r - robot ?c - carrier ?l - location ?b - box ?cap1 - capacity-number ?cap2 - capacity-number)
+    :precondition (and
+      (robot_at ?r ?l)  ;; The robot must be at the target location
+      (carrier_load ?c ?b)  ;; The carrier must contain the box
+      (carrier_capacity ?c ?cap2)  ;; The carrier's current used capacity
+      (capacity-predecessor ?cap2 ?cap1))  ;; The capacity can be increased (cap2 → cap1)
+    :effect (and
+      (not (carrier_load ?c ?b))  ;; The box is no longer in the carrier
+      (at_box ?b ?l)  ;; The box is now at the location
+      (not (carrier_capacity ?c ?cap2))  ;; Increase available carrier capacity
+      (carrier_capacity ?c ?cap1))  ;; Assign the new increased capacity
+  )
 
 
+    ;; Action: Pick up a patient
   (:action take_patient
     :parameters (?r - accompany_robot ?p - patient ?l - location)
     :precondition (and
-      (free_to_accompany ?r)
-      (patient_at ?p ?l)
-      (robot_at ?r ?l)
-    )
+      (free_to_accompany ?r)  ;; The accompanying robot must be available
+      (patient_at ?p ?l)  ;; The patient must be at the same location
+      (robot_at ?r ?l))  ;; The robot must also be at the location
     :effect (and
-      (not (patient_at ?p ?l))
-      (not (free_to_accompany ?r))
-      (accompanying_pat ?p ?r)
-    )
+      (not (patient_at ?p ?l))  ;; The patient is no longer at the location
+      (not (free_to_accompany ?r))  ;; The robot is now occupied
+      (accompanying_pat ?p ?r))  ;; The patient is now accompanied by the robot
   )
 
+  ;; Action: Deliver a patient to a medical unit
   (:action deliver_patient_at_med_bay
     :parameters (?ar - accompany_robot ?p - patient ?m - medical_unit)
     :precondition (and
-      (robot_at ?ar ?m)
-      (accompanying_pat ?p ?ar))
+      (robot_at ?ar ?m)  ;; The accompanying robot must be at the medical unit
+      (accompanying_pat ?p ?ar))  ;; The robot must be carrying the patient
     :effect (and
-      (not (accompanying_pat ?p ?ar))
-      (free_to_accompany ?ar)
-      (patient_at ?p ?m))
+      (not (accompanying_pat ?p ?ar))  ;; The robot is no longer carrying the patient
+      (free_to_accompany ?ar)  ;; The robot is now free
+      (patient_at ?p ?m))  ;; The patient is now at the medical unit
   )
-)
+
