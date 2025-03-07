@@ -1,17 +1,38 @@
+;; Define the healthcare logistics problem instance using temporal planning
 (define (problem healthcare_problem)
-    (:domain temporal_healthcare)
+    (:domain temporal_healthcare)  ;; This problem is part of the "temporal_healthcare" domain
 
+    ;; Define all objects used in the problem
     (:objects
-        central_warehouse heliport_alpha - inventory
+        ;; Inventory storage locations where medical supplies are initially stored
+        central_warehouse heliport_alpha - inventory  
+
+        ;; General hospital locations (corridors, sectors)
         entrance sector_a sector_b sector_c - generic_location
-        scalpel tongue_depressor aspirin - content
-        box1 box2 box3 box4 box5 box6 box7 box8 box9 box10 - box
-        delivery_robot1 delivery_robot2 - delivery_robot
-        accompany_robot1 - accompany_robot
-        drone1 drone2 - drone
-        carrier1 carrier2 carrier3 carrier4 - carrier
-        rocco ciro - patient
-        cardiology dentistry radiology neuro_surgery day_hospital - medical_unit
+
+        ;; Medical supplies (content to be delivered)
+        scalpel tongue_depressor aspirin - content  
+
+        ;; Boxes containing medical supplies
+        box1 box2 box3 box4 box5 box6 box7 box8 box9 box10 - box  
+
+        ;; Delivery robots for transporting medical supplies
+        delivery_robot1 delivery_robot2 - delivery_robot  
+
+        ;; Accompanying robot for transporting patients
+        accompany_robot1 - accompany_robot  
+
+        ;; Drones for airborne transport of supplies
+        drone1 drone2 - drone  
+
+        ;; Carriers that can hold multiple boxes for transport
+        carrier1 carrier2 carrier3 carrier4 - carrier  
+
+        ;; Patients who need transportation
+        rocco ciro - patient  
+
+        ;; Medical units where supplies and patients must be delivered
+        cardiology dentistry radiology neuro_surgery day_hospital - medical_unit  
     )
 
     (:init
@@ -166,6 +187,20 @@
         (=(arial_distance central_warehouse heliport_alpha) 129)
 
     )
+
+    ;; Define the goal state for successful logistics execution
+
+    ;; Ensure specific medical supplies are delivered to each medical unit
+    ;; - Day Hospital should have 3 aspirin, but no scalpels or tongue depressors
+    ;; - Cardiology requires 1 tongue depressor, but no aspirin or scalpels
+    ;; - Radiology does not require any supplies
+    ;; - Dentistry needs 2 aspirin and 2 tongue depressors, but no scalpels
+    ;; - Neuro Surgery requires 2 scalpels, but no aspirin or tongue depressors
+
+    ;; Ensure patients reach their designated medical units
+    ;; - Patient "Rocco" should be at the Cardiology unit
+    ;; - Patient "Ciro" should be at the Day Hospital
+
     (:goal
         (and
             ;(robot_at accompany_robot1 sector_a)
