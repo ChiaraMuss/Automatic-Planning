@@ -1,64 +1,91 @@
+;; Define the healthcare logistics problem instance
 (define (problem p)
-  (:domain healthcare_hierarchy)
+  (:domain healthcare_hierarchy)  ;; This problem belongs to the "healthcare_hierarchy" domain
+
+  ;; Define objects used in the problem
   (:objects
+    ;; Inventory storage areas where supplies are initially located
     central_warehouse heliport_alpha - inventory
-    central_warehouse heliport_alpha - location
+    central_warehouse heliport_alpha - location  ;; Locations where robots and supplies can be
 
+    ;; Hospital sectors and entry points
     entrance sector_a sector_b sector_c - location
-    scalpel tongue_depressor aspirin - content
-    box1 box2 box3 box4 box5 box6 box7 box8 box9 box10 - box
-    delivery_robot1 delivery_robot2 - delivery_robot
+    
+    ;; Medical supplies
+    scalpel tongue_depressor aspirin - content  
+    
+    ;; Boxes containing medical supplies
+    box1 box2 box3 box4 box5 box6 box7 box8 box9 box10 - box  
 
-    accompany_robot1 accompany_robot2 - accompany_robot
-    drone1 drone2 - drone
-    carrier1 carrier2 carrier3 carrier4 - carrier
-    rocco ciro - patient
-    cardiology dentistry radiology neuro_surgery day_hospital - medical_unit
-    capacity0 capacity1 capacity2 capacity3 capacity4 capacity5 capacity6 capacity7 - capacity-number
+    ;; Delivery robots for transporting medical supplies
+    delivery_robot1 delivery_robot2 - delivery_robot  
+
+    ;; Accompanying robots for transporting patients
+    accompany_robot1 accompany_robot2 - accompany_robot  
+
+    ;; Drones for airborne transport of supplies
+    drone1 drone2 - drone  
+
+    ;; Carriers that can hold multiple boxes for transport
+    carrier1 carrier2 carrier3 carrier4 - carrier  
+
+    ;; Patients who need to be transported to medical units
+    rocco ciro - patient  
+
+    ;; Medical units where supplies and patients need to be delivered
+    cardiology dentistry radiology neuro_surgery day_hospital - medical_unit  
+
+    ;; Capacity levels for carriers
+    capacity0 capacity1 capacity2 capacity3 capacity4 capacity5 capacity6 capacity7 - capacity-number  
   )
 
+  ;; HTN (Hierarchical Task Network) tasks that must be completed
   (:htn
     :tasks
     (and
+      ;; Deliver patients to medical units
       (deliver-patient accompany_robot1 rocco cardiology)
       (deliver-patient accompany_robot2 ciro neuro_surgery)
-      (unload_box_to_location drone1 carrier3 box3 heliport_alpha) 
-      (unload_box_to_location delivery_robot1 carrier1 box1 cardiology) 
-      (unload_box_to_location delivery_robot2 carrier2 box2 neuro_surgery)  
-      
-    )
-    :ordering ()
-    :constraints ()
-  )
-  (:init
-    ;; Capacità dei carrier
-    (carrier_capacity carrier1 capacity3)
-    (carrier_capacity carrier2 capacity2)
-    (carrier_capacity carrier3 capacity2)
-    (carrier_capacity carrier4 capacity5)
 
-    ;; Gerarchia delle capacità
+      ;; Unload medical supplies at designated locations
+      (unload_box_to_location drone1 carrier3 box3 heliport_alpha)  ;; Unload aspirin at heliport_alpha
+      (unload_box_to_location delivery_robot1 carrier1 box1 cardiology)  ;; Unload aspirin at cardiology
+      (unload_box_to_location delivery_robot2 carrier2 box2 neuro_surgery)  ;; Unload aspirin at neuro_surgery
+    )
+    :ordering ()  ;; No specific ordering constraints between tasks
+    :constraints ()  ;; No additional constraints
+  )
+
+  ;; Define the initial state of the world
+  (:init
+    ;; Carrier capacity (defines how many boxes each carrier can hold)
+    (carrier_capacity carrier1 capacity3)  ;; Carrier1 can hold 3 boxes
+    (carrier_capacity carrier2 capacity2)  ;; Carrier2 can hold 2 boxes
+    (carrier_capacity carrier3 capacity2)  ;; Carrier3 can hold 2 boxes
+    (carrier_capacity carrier4 capacity5)  ;; Carrier4 can hold 5 boxes
+
+    ;; Capacity hierarchy (tracks how carrier capacity is reduced when boxes are loaded)
     (capacity-predecessor capacity0 capacity1)
     (capacity-predecessor capacity1 capacity2)
     (capacity-predecessor capacity2 capacity3)
     (capacity-predecessor capacity3 capacity4)
     (capacity-predecessor capacity4 capacity5)
 
-    ;; Posizione iniziale di robot, droni e pazienti
-    (robot_at delivery_robot1 central_warehouse)
-    (robot_at delivery_robot2 central_warehouse)
-    (robot_at accompany_robot1 entrance)
-    (robot_at accompany_robot2 entrance)
-    (robot_at drone1 central_warehouse)
-    (robot_at drone2 central_warehouse)
-    (patient_at rocco entrance)
-    (patient_at ciro entrance)
+    ;; Initial positions of robots, drones, and patients
+    (robot_at delivery_robot1 central_warehouse)  ;; Delivery robot 1 starts at the warehouse
+    (robot_at delivery_robot2 central_warehouse)  ;; Delivery robot 2 starts at the warehouse
+    (robot_at accompany_robot1 entrance)  ;; Accompanying robot 1 starts at the entrance
+    (robot_at accompany_robot2 entrance)  ;; Accompanying robot 2 starts at the entrance
+    (robot_at drone1 central_warehouse)  ;; Drone 1 starts at the warehouse
+    (robot_at drone2 central_warehouse)  ;; Drone 2 starts at the warehouse
+    (patient_at rocco entrance)  ;; Patient Rocco is at the entrance
+    (patient_at ciro entrance)  ;; Patient Ciro is at the entrance
 
-    ;; Stato dei robot accompagnatori
+    ;; Accompanying robots are initially free to transport patients
     (free_to_accompany accompany_robot1)
     (free_to_accompany accompany_robot2)
 
-    ;; Stato iniziale dei box
+    ;; Initial positions of medical supply boxes (all stored at the warehouse)
     (at_box box1 central_warehouse)
     (at_box box2 central_warehouse)
     (at_box box3 central_warehouse)
@@ -70,12 +97,12 @@
     (at_box box9 central_warehouse)
     (at_box box10 central_warehouse)
 
-    ;; Assegnazione dei carrier ai robot
-    (robot_has_carrier delivery_robot1 carrier1)
-    (robot_has_carrier delivery_robot2 carrier2)
-    (robot_has_carrier drone1 carrier3)
+    ;; Assign carriers to robots
+    (robot_has_carrier delivery_robot1 carrier1)  ;; Delivery robot 1 has carrier1
+    (robot_has_carrier delivery_robot2 carrier2)  ;; Delivery robot 2 has carrier2
+    (robot_has_carrier drone1 carrier3)  ;; Drone 1 has carrier3
 
-    ;; Contenuti delle scatole
+    ;; Define the contents of each box
     (contains box1 aspirin)
     (contains box2 aspirin)
     (contains box3 aspirin)
@@ -87,9 +114,7 @@
     (contains box9 tongue_depressor)
     (contains box10 tongue_depressor)
 
-    
-
-    ;; Connessioni tra i settori
+    ;; Connections between different sectors and locations
     (connected central_warehouse sector_a)
     (connected sector_a central_warehouse)
 
@@ -98,6 +123,7 @@
 
     (connected sector_b sector_c)
     (connected sector_c sector_b)
+
     (connected day_hospital sector_c)
     (connected sector_c day_hospital)
 
@@ -122,10 +148,9 @@
     (connected dentistry sector_a)
     (connected sector_a dentistry)
 
-    ; Drone port available
+    ;; Drone ports (locations where drones can take off and land)
     (has_drone_port heliport_alpha)
     (has_drone_port central_warehouse)
   )
 )
-
-     
+  
