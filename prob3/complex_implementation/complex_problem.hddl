@@ -26,8 +26,6 @@
   (:htn
     :subtasks
     (and
-      ;(task0(go_pickup delivery_robot1 carrier1 box4 aspirin central_warehouse))
-      ;(task1(go_pickup delivery_robot1 carrier1 box2 aspirin heliport_alpha))
       (task3 (take_content_from_inventory aspirin))
       (task4 (take_content_from_inventory aspirin))
       (task6 (deliver_content_amount aspirin dentistry capacity2))

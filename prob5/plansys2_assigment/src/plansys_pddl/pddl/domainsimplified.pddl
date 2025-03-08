@@ -11,7 +11,7 @@
     medical_unit inventory location delivery_robot accompany_robot drone content carrier box patient capacity-number
   )
 
-  (:predicates ;## Thanks to the deletion of the type hierarchy we had to add all of the permutations of robot and location that we need to mantain compatibility with prob4 problems
+  (:predicates ;## Thanks to the deletion of the type hierarchy we had to add all of the permutations of robot and location that we need to maintain compatibility with prob4 problems
     (delivery_robot_at_location ?r - delivery_robot ?l - location)
     (delivery_robot_at_medical_unit ?r - delivery_robot ?l - medical_unit)
     (delivery_robot_at_inventory ?r - delivery_robot ?l - inventory)
@@ -51,7 +51,6 @@
 
   ;;----------------------- TERRESTRIAL ROBOTS
   ;; Moving a robot
-  ;## adding distinction between movement of different terrestrial robots in and out of specific types of locations
 
   ;;;;;---------------------------------Delivery Robot
   (:durative-action move_between_location_delivery_robot
@@ -66,6 +65,7 @@
       (at end (delivery_robot_at_location ?r ?to))
     )
   )
+  ;## adding distinction between movement of different terrestrial robots in and out of specific types of locations
 
   (:durative-action move_in_inventory_delivery_robot
     :parameters (?r - delivery_robot ?from - location ?to - inventory)
@@ -120,7 +120,7 @@
   )
 
   ;;;;;--------------------------------- Accompanying Robot
-  ;## adding distinction between movement of different terrestrial robots in and out of specific types of locations.
+  ;## adding distinction between movement of different accompanying robot in and out of specific types of locations.
   ;## movement in and out of inventory location are excluded for accompanying robot since they must not transport boxes
 
   (:durative-action move_between_location_accompany_robot
@@ -183,7 +183,7 @@
     )
   )
 
-  ;## Two different unloads, one for the inventory and one for the medical unit
+  ;## Two different unloads, one for the inventory location and one for the medical unit location
 
   (:durative-action unload_from_robot_carrier_inventory
     :parameters (?r - delivery_robot ?b - box ?c - carrier ?l - inventory ?n1 ?n2 - capacity-number)
@@ -227,7 +227,7 @@
 
   (:durative-action unload_content ;## changed only the use of the capacity predicates
     :parameters (?r - delivery_robot ?b - box ?m - medical_unit ?c - content ?n1 ?n2 - capacity-number)
-    :duration (= ?duration 20) ; (content_unload_time))
+    :duration (= ?duration 20)
     :condition (and
       (at start (contains ?b ?c)) ; Ensure the box contains the specific content
       (at start (capacity-predecessor ?n1 ?n2))
@@ -247,7 +247,7 @@
 
   (:durative-action load_to_drone_carrier ;## changed only the use of the capacity predicates
     :parameters (?d - drone ?b - box ?c - carrier ?l - inventory ?n1 ?n2 - capacity-number)
-    :duration (= ?duration 2) ; (loading_time))
+    :duration (= ?duration 2)
     :condition (and
       (at start (drone_has_carrier ?d ?c))
       (at start (capacity-predecessor ?n1 ?n2))
@@ -266,7 +266,7 @@
 
   (:durative-action unload_from_drone_carrier ;## changed only the use of the capacity predicates
     :parameters (?d - drone ?c - carrier ?b - box ?l - inventory)
-    :duration (= ?duration 4) ; (unloading_time))
+    :duration (= ?duration 4)
     :condition (and
       (over all
         (drone_at ?d ?l)
@@ -282,7 +282,7 @@
 
   (:durative-action move_drone
     :parameters (?d - drone ?c - carrier ?from - inventory ?to - inventory)
-    :duration (= ?duration 10) ; (/ (arial_distance ?from ?to) (speed ?d)))
+    :duration (= ?duration 10)
     :condition (and
       (at start
         (drone_at ?d ?from)
@@ -301,7 +301,7 @@
   ;; Patient transfer 
   (:durative-action take_patient ;##changed the predicates because of the new types 
     :parameters (?ar - accompany_robot ?w - location ?p - patient)
-    :duration (= ?duration 20) ; (expected_patient_interaction_time))
+    :duration (= ?duration 20)
     :condition (and
       (at start (free_to_accompany ?ar))
       (at start (patient_at_location ?p ?w))
@@ -317,7 +317,7 @@
 
   (:durative-action deliver_patient ;##changed the predicates because of the new types 
     :parameters (?ar - accompany_robot ?m - medical_unit ?p - patient)
-    :duration (= ?duration 20) ; (expected_patient_interaction_time))
+    :duration (= ?duration 20)
     :condition (and
       (at start (accompanying_pat ?p ?ar))
       (over all (accompany_robot_at_medical_unit ?ar ?m))

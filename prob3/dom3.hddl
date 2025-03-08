@@ -207,13 +207,13 @@
       (robot_at ?r ?l)  ;; The robot must be at the inventory location
       (robot_has_carrier ?r ?c)  ;; The robot must have an assigned carrier
       (at_box ?b ?l)  ;; The box must be at the same location
-      (carrier_capacity ?c ?cap1)  ;; The carrier must have some capacity left
+      (carrier_capacity ?c ?cap2)  ;; The carrier must have some capacity left
       (capacity-predecessor ?cap1 ?cap2))  ;; The capacity must be reducible (cap1 → cap2)
     :effect (and
       (not (at_box ?b ?l))  ;; The box is no longer at the location
       (carrier_load ?c ?b)  ;; The box is now loaded into the carrier
-      (not (carrier_capacity ?c ?cap1))  ;; Reduce the available capacity
-      (carrier_capacity ?c ?cap2))  ;; Assign the new reduced capacity
+      (not (carrier_capacity ?c ?cap2))  ;; Reduce the available capacity
+      (carrier_capacity ?c ?cap1))  ;; Assign the new reduced capacity
   )
 
   ;; Action: Unload a box from a carrier

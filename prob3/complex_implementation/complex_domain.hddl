@@ -8,7 +8,6 @@
     location inventory - object
     medical_unit - location
     content - object
-    ;scissor band_aid syringes - content
     robot - object
     terrestrial_robot aerial_robot - robot
     delivery_robot accompany_robot - terrestrial_robot
@@ -56,7 +55,7 @@
 
   (:task load_content_box_to_carrier ;;The object can be loaded only at inventory locations thanks to method definitions
     :parameters(?b - box ?c - content ?l - inventory ?r - robot ?ca - carrier)
-    :precondition(robot_has_carrier ?r ?ca) ; this precondition halved the search time 
+    :precondition(robot_has_carrier ?r ?ca) 
   )
 
   (:task deliver_content_amount
@@ -185,28 +184,6 @@
     )
   )
 
-  ; (:method m-empty_box_in_med_unit
-  ;   :parameters(?r - delivery_robot ?b - box ?c - content ?m - medical_unit ?n1 ?n2 - capacity-number)
-  ;   :task(empty_box_in_med_unit ?b ?c ?m)
-  ;   :subtasks(a-empty_box_in_med_unit ?r ?b ?c ?m ?n1 ?n2)
-  ; )
-
-  ;Drone 
-
-  ;(:method m-load_to_drone_carrier
-  ;  :parameters(?r - drone ?c - carrier ?l - inventory ?b - box ?co - content ?n1 ?n2 - capacity-number)
-  ;  :task(load_content_box_to_carrier ?b ?co ?l ?c)
-  ;  :subtasks
-  ;  ( load_up_drone_carrier ?r ?c ?l ?b ?co ?n1 ?n2)
-  ;)
-  ;
-  ;(:method m-unload_box_from_drone_carrier
-  ;  :parameters(?r - drone ?c - carrier ?l - location ?b - box ?n1 ?n2 - capacity-number)
-  ;  :task(unload_content_box_to_location ?b ?co ?l)
-  ;  :subtasks
-  ;  (unload_from_drone_carrier ?r ?c ?l ?b ?co ?n1 ?n2)
-  ;)
-
   ;;############################## ACTIONS
   ;;----------------- Movement Actions
 
@@ -325,42 +302,4 @@
       (med_unit_inventory_of ?m ?co ?bf_end_cap))
     :effect ()
   )
-
-  ; ;Drone 
-  ;
-  ; (:action load_up_drone_carrier
-  ;   :parameters (?r - drone ?c - carrier ?l - location ?b - box ?co - content ?n1 ?n2 - capacity-number)
-  ;   :precondition (and
-  ;     (robot_at ?r ?l)
-  ;     (robot_has_carrier ?r ?c)
-  ;     (at_box ?b ?l)
-  ;     (contains ?b ?co)
-  ;     (capacity-predecessor ?n1 ?n2)
-  ;     (carrier_capacity ?c ?n2)
-  ;   )
-  ;   :effect (and
-  ;     (not (at_box ?b ?l))
-  ;     (not (carrier_capacity ?c ?n2))
-  ;     (carrier_load ?c ?b)
-  ;     (carrier_capacity ?c ?n1)
-  ;   )
-  ; )
-  ;
-  ; (:action unload_from_drone_carrier
-  ;   :parameters (?r - drone ?c - carrier ?l - location ?b - box ?co - content ?n1 ?n2 - capacity-number)
-  ;   :precondition (and
-  ;     (robot_at ?r ?l)
-  ;     (robot_has_carrier ?r ?c)
-  ;     (carrier_load ?c ?b)
-  ;     (contains ?b ?co)
-  ;     (capacity-predecessor ?n1 ?n2)
-  ;     (carrier_capacity ?c ?n1)
-  ;   )
-  ;   :effect (and
-  ;     (not (carrier_load ?c ?b))
-  ;     (not (carrier_capacity ?c ?n1))
-  ;     (at_box ?b ?l)
-  ;     (carrier_capacity ?c ?n2)
-  ;   )
-  ; )
 )

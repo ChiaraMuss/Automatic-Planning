@@ -1,4 +1,5 @@
 ;; Define the healthcare logistics domain
+;;Tested with metric-ff with parameter -s 0
 (define (domain healthcare)
   (:requirements :strips :typing :fluents)  ;; Requires STRIPS, typing, and fluents for numeric operations
 
@@ -9,7 +10,7 @@
     terrestrial_robot arial_robot - robot  ;; Two categories of robots: terrestrial and aerial
     delivery_robot accompany_robot - terrestrial_robot  ;; Terrestrial robots: delivery and accompanying robots
     drone - arial_robot  ;; Aerial robot type: drone
-    carrier - box  ;; A carrier is a type of box used for transporting goods
+    carrier ;; A carrier is the container of boxes associated with each type of delivering robot 
     patient  ;; Represents a patient who needs to be transported
   )
 
@@ -19,7 +20,7 @@
     (contains ?b - box ?c - content)  ;; A box contains a specific type of content
     (carrier_load ?c - carrier ?b - box)  ;; A carrier is loaded with a specific box
     (carrier_at ?c - carrier ?l - location)  ;; A carrier is at a specific location
-    (robot_has_carrier ?r - robot ?c - carrier)  ;; A robot is assigned a carrier
+    (robot_has_carrier ?r - robot ?c - carrier)  ;; A robot has it's own container
     (connected ?l1 - location ?l2 - location)  ;; Two locations are connected
     (has_drone_port ?l - location)  ;; A location has a drone port
     (at_box ?b - box ?l - location)  ;; A box is at a specific location
@@ -35,7 +36,6 @@
     (carrier_capacity ?c - carrier)  ;; Maximum capacity of a carrier
     (carrier_used ?c - carrier)  ;; Current usage of a carrier
     (med_unit_inventory_of ?m - medical_unit ?c - content)  ;; Inventory of a medical unit for a given supply
-    (warehouse_inventory_of ?i - location ?c - content)  ;; Inventory of a warehouse for a given supply
   )
 
   ;; ----------------------- TERRESTRIAL ROBOTS -----------------------
@@ -116,7 +116,7 @@
   ;; Action: Move a drone between locations with drone ports
   (:action move_drone
     :parameters (?d - drone ?c - carrier ?from - location ?to - location)
-    :precondition (and 
+    :precondition (and ;; we didn't consider a limit to the number of drones present at the same location
       (robot_at ?d ?from) 
       (carrier_at ?c ?from) 
       (robot_has_carrier ?d ?c) 
@@ -124,7 +124,7 @@
       (has_drone_port ?to))
     :effect (and 
       (not (carrier_at ?c ?from)) (carrier_at ?c ?to) 
-      (not (robot_at ?d ?from)) (robot_at ?d ?to))
+      (not (robot_at ?d ?from)) (robot_at ?d ?to)) 
   )
 
   ;; Action: Unload a box from a drone's carrier

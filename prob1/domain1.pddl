@@ -1,4 +1,5 @@
 ;; Define the domain for a healthcare logistics problem
+;; Tested with fast forward
 (define (domain healthcare)
   (:requirements :strips :typing)
 
