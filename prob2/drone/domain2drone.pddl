@@ -12,6 +12,7 @@
     drone - arial_robot  ;; Aerial robot type: drone
     carrier ;; A carrier is the container of boxes associated with each type of delivering robot 
     patient  ;; Represents a patient who needs to be transported
+    box ;;A box is the content container
   )
 
   ;; Define predicates for system states
