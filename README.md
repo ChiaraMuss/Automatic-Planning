@@ -66,7 +66,8 @@ prob3/                     # Problem 3 implementation (HTN planning)
 prob4/                     # Problem 4 implementation (durative actions)
 prob5/                     # Problem 5 implementation (PlanSys2 integration)
 README.md                  # Project documentation
-assignment.pdf              # Full assignment description
+assignment.pdf             # Full assignment description
+Report.pdf                 # Report about our work
 ```
 
 ---
